@@ -12,8 +12,10 @@ CREATE TABLE IF NOT EXISTS tickets (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     title       TEXT NOT NULL,
     description TEXT NOT NULL,
-    category    TEXT NOT NULL CHECK (category IN ('bug','feature_request','question','urgent')),
-    priority    TEXT NOT NULL CHECK (priority IN ('P1','P2','P3')),
+    category    TEXT NOT NULL CHECK (
+        category IN ('bug','feature_request','question','urgent','no inferido')
+    ),
+    priority    TEXT NOT NULL CHECK (priority IN ('P1','P2','P3','no inferido')),
     tags        TEXT NOT NULL DEFAULT '[]',
     status      TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','in_progress','closed')),
     created_at  TEXT NOT NULL,

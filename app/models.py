@@ -10,6 +10,9 @@ Category = Literal["bug", "feature_request", "question", "urgent"]
 Priority = Literal["P1", "P2", "P3"]
 Status = Literal["open", "in_progress", "closed"]
 
+# Valor que el clasificador asigna cuando no puede inferir categoría o prioridad.
+NOT_INFERRED = "no inferido"
+
 
 class TicketCreate(BaseModel):
     """Entrada: título y descripción obligatorios; la fecha la aporta el origen si la tiene."""
@@ -38,8 +41,8 @@ class Ticket(BaseModel):
     id: int
     title: str
     description: str
-    category: Category
-    priority: Priority
+    category: Category | Literal["no inferido"]
+    priority: Priority | Literal["no inferido"]
     tags: list[str]
     status: Status
     created_at: str
