@@ -1,0 +1,1 @@
+"""TriageBot application package."""

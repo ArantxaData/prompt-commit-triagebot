@@ -1,0 +1,702 @@
+[
+  {
+    "title": "Añadir filtro por estado en el listado de pedidos",
+    "description": "Me vendría muy bien poder filtrar los pedidos por estado (pendiente, enviado, entregado) para no revisarlos todos uno a uno.",
+    "created_at": "2026-03-27T09:42:23Z"
+  },
+  {
+    "title": "¿Cómo solicito acceso de solo lectura al cuadro de mando de dirección?",
+    "description": "Para preparar un informe necesito consultar el panel de dirección, aunque sea solo de lectura. ¿Cómo pido ese permiso?",
+    "created_at": "2026-03-27T14:45:09Z"
+  },
+  {
+    "title": "¿Qué política hay para el uso del móvil de empresa en el extranjero?",
+    "description": "Voy a viajar fuera por trabajo y no sé si puedo usar los datos del móvil corporativo o si hay alguna restricción de roaming.",
+    "created_at": "2026-03-29T13:11:50Z"
+  },
+  {
+    "title": "El visor de PDF de la intranet no muestra la última página",
+    "description": "Al abrir documentos largos en el visor integrado, siempre falta la última página. Si lo descargo y lo abro aparte, está completa.",
+    "created_at": "2026-03-30T17:14:48Z"
+  },
+  {
+    "title": "Permitir personalizar las columnas del listado de tickets",
+    "description": "Cada uno usamos campos distintos. Estaría bien poder elegir qué columnas ver en la tabla de tickets y cuáles ocultar.",
+    "created_at": "2026-03-31T08:50:24Z"
+  },
+  {
+    "title": "Permitir asignar un ticket a varias personas",
+    "description": "A veces una incidencia la tenemos que resolver entre dos. Estaría bien poder asignar el mismo ticket a más de una persona.",
+    "created_at": "2026-03-31T18:13:40Z"
+  },
+  {
+    "title": "Sería útil poder exportar los tickets a Excel",
+    "description": "Para hacer informes mensuales tendría que pasar los datos a una hoja de cálculo. ¿Podríais añadir un botón de exportar a Excel en el listado de tickets?",
+    "created_at": "2026-04-01T10:02:29Z"
+  },
+  {
+    "title": "Sería útil traducir la intranet al inglés para los compañeros de fuera",
+    "description": "Tenemos compañeros en la oficina internacional que no hablan español. Una versión en inglés de la intranet les ayudaría mucho.",
+    "created_at": "2026-04-02T09:06:34Z"
+  },
+  {
+    "title": "¿Está permitido instalar Spotify en el ordenador del trabajo?",
+    "description": "Me gusta trabajar con música. ¿Puedo instalar una aplicación de música o va contra alguna política?",
+    "created_at": "2026-04-02T09:25:33Z"
+  },
+  {
+    "title": "¿Puedo cambiar mi dirección de correo tras casarme y cambiar de apellido?",
+    "description": "He cambiado de apellido y me gustaría que mi correo lo reflejara. ¿Es posible cambiar la dirección manteniendo los correos antiguos?",
+    "created_at": "2026-04-02T19:39:34Z"
+  },
+  {
+    "title": "La VPN rechaza a todo el equipo de teletrabajo",
+    "description": "Desde primera hora ninguno de los que trabajamos en remoto podemos conectar a la VPN. Sale 'authentication failed' aunque la contraseña es correcta.",
+    "created_at": "2026-04-03T11:02:06Z"
+  },
+  {
+    "title": "¿Puedo reenviar mi correo a una cuenta personal mientras estoy de baja?",
+    "description": "Voy a estar de baja un tiempo y me preguntaba si está permitido reenviar mi correo del trabajo a mi cuenta personal.",
+    "created_at": "2026-04-03T19:35:13Z"
+  },
+  {
+    "title": "Se ha caído la centralita y no entran llamadas",
+    "description": "El teléfono de atención al cliente no recibe llamadas desde hace 20 minutos. Los clientes no pueden contactarnos.",
+    "created_at": "2026-04-04T07:50:03Z"
+  },
+  {
+    "title": "La exportación a Excel del CRM sale con las columnas desordenadas",
+    "description": "Cuando exporto la lista de oportunidades a Excel, las columnas no coinciden con las cabeceras: el nombre del cliente aparece bajo 'importe'.",
+    "created_at": "2026-04-04T13:19:04Z"
+  },
+  {
+    "title": "El total de horas del mes no coincide con mi calendario",
+    "description": "El resumen de jornada me da menos horas de las que he trabajado según mi calendario. Creo que no cuenta bien algún día.",
+    "created_at": "2026-04-05T19:57:18Z"
+  },
+  {
+    "title": "No tengo acceso a la sala donde es la reunión con el cliente",
+    "description": "Mi tarjeta de acceso no abre la sala de juntas grande y la reunión con el cliente empieza en 15 minutos.",
+    "created_at": "2026-04-06T07:25:12Z"
+  },
+  {
+    "title": "¿Puedo acceder al CRM desde el móvil?",
+    "description": "A veces estoy fuera visitando clientes. ¿Existe una app o forma de consultar el CRM desde el teléfono?",
+    "created_at": "2026-04-06T07:56:07Z"
+  },
+  {
+    "title": "Los gráficos del dashboard de ventas aparecen en blanco",
+    "description": "Entro al panel de KPIs y las tarjetas con números cargan, pero los gráficos salen completamente vacíos. Probé en Chrome y en Edge igual.",
+    "created_at": "2026-04-08T08:38:46Z"
+  },
+  {
+    "title": "El total de la factura sale mal en el ERP",
+    "description": "Al generar una factura con descuento, el total no resta el descuento. El subtotal está bien pero el importe final está inflado.",
+    "created_at": "2026-04-10T08:08:45Z"
+  },
+  {
+    "title": "¿Dónde puedo descargar mi nómina del mes pasado?",
+    "description": "Necesito la nómina de mayo para un trámite del banco y no sé en qué apartado del portal se descargan las anteriores.",
+    "created_at": "2026-04-10T12:42:09Z"
+  },
+  {
+    "title": "El generador de etiquetas de envío imprime el código de barras cortado",
+    "description": "Las etiquetas salen con el código de barras a medias, así que el escáner de la transportista no lo lee y hay que repetirlas a mano.",
+    "created_at": "2026-04-10T14:17:36Z"
+  },
+  {
+    "title": "Los enlaces del boletín interno llevan a página de error",
+    "description": "Los enlaces del último boletín de comunicación interna dan todos 404. Parece que apuntan a una ruta antigua de la intranet.",
+    "created_at": "2026-04-10T19:34:36Z"
+  },
+  {
+    "title": "¿Cómo veo el espacio que me queda en el buzón de correo?",
+    "description": "Tengo la sensación de que se me llena el correo. ¿Dónde puedo ver cuánto espacio he usado y cuánto me queda?",
+    "created_at": "2026-04-10T20:32:03Z"
+  },
+  {
+    "title": "Propuesta: histórico de versiones en los documentos compartidos",
+    "description": "Sería muy útil poder ver versiones anteriores de un documento compartido y recuperar una si alguien lo modifica por error.",
+    "created_at": "2026-04-13T07:33:29Z"
+  },
+  {
+    "title": "La app de fichaje me marca dos entradas seguidas",
+    "description": "A veces, al fichar la entrada, registra dos entradas seguidas sin salida en medio, y luego el cómputo del día queda descuadrado.",
+    "created_at": "2026-04-13T13:00:12Z"
+  },
+  {
+    "title": "¿Cómo solicito una segunda pantalla para teletrabajo?",
+    "description": "Para trabajar en casa me iría bien un monitor adicional. ¿Existe algún procedimiento para pedir equipo para el teletrabajo?",
+    "created_at": "2026-04-15T07:57:30Z"
+  },
+  {
+    "title": "El CRM se cierra solo al abrir una oportunidad grande",
+    "description": "Cuando abro una oportunidad con muchas líneas de producto, la aplicación se congela unos segundos y se cierra sin avisar.",
+    "created_at": "2026-04-15T20:11:12Z"
+  },
+  {
+    "title": "¿Cómo añado una excepción para una web bloqueada que necesito?",
+    "description": "Una web que necesito para trabajar aparece bloqueada por el filtro. ¿Cómo pido que la habiliten?",
+    "created_at": "2026-04-16T07:12:28Z"
+  },
+  {
+    "title": "Propuesta: añadir atajos de teclado al CRM",
+    "description": "Para los que usamos mucho el CRM, unos atajos de teclado para las acciones más frecuentes nos harían ir mucho más rápido.",
+    "created_at": "2026-04-16T09:43:02Z"
+  },
+  {
+    "title": "¿Cómo cambio mi contraseña del portal de RRHH?",
+    "description": "Quiero actualizar mi contraseña del portal de empleado pero no encuentro la opción dentro de mi perfil. ¿Dónde está?",
+    "created_at": "2026-04-16T15:16:47Z"
+  },
+  {
+    "title": "Petición: que el portal muestre el saldo de vacaciones en la portada",
+    "description": "En vez de tener que entrar a un apartado concreto, estaría bien ver de un vistazo los días de vacaciones que me quedan al entrar.",
+    "created_at": "2026-04-16T17:27:48Z"
+  },
+  {
+    "title": "Sería útil un panel con el estado de todos los sistemas",
+    "description": "A menudo no sé si un problema es mío o general. Una página que muestre qué sistemas están operativos ayudaría mucho.",
+    "created_at": "2026-04-16T19:03:15Z"
+  },
+  {
+    "title": "La numeración de las facturas tiene un salto",
+    "description": "He notado que entre dos facturas consecutivas hay un número que falta. ¿Es normal o se ha perdido una factura?",
+    "created_at": "2026-04-16T19:44:25Z"
+  },
+  {
+    "title": "¿Cómo reservo una sala de reuniones?",
+    "description": "Es la primera vez que necesito reservar una sala y no sé si se hace por el calendario, por la intranet o de otra forma.",
+    "created_at": "2026-04-17T15:02:29Z"
+  },
+  {
+    "title": "La lista de contactos del CRM no se ordena alfabéticamente",
+    "description": "Al abrir mis contactos en el CRM aparecen en un orden aparentemente aleatorio en lugar de por orden alfabético.",
+    "created_at": "2026-04-17T17:28:22Z"
+  },
+  {
+    "title": "Añadir exportación a PDF del resumen mensual de gastos",
+    "description": "Para presentar mis gastos a mi responsable me vendría bien poder generar un PDF con el resumen del mes de un solo clic.",
+    "created_at": "2026-04-17T17:43:14Z"
+  },
+  {
+    "title": "Permitir cambiar el orden de las columnas en el listado",
+    "description": "En la tabla de oportunidades me gustaría poder mover las columnas para tener primero las que más uso.",
+    "created_at": "2026-04-17T20:12:22Z"
+  },
+  {
+    "title": "¿Puedo usar mi propio teclado y ratón en el equipo de la oficina?",
+    "description": "Me gustaría traer mi teclado de casa. ¿Hay algún problema en conectarlo al ordenador de la empresa?",
+    "created_at": "2026-04-19T10:41:01Z"
+  },
+  {
+    "title": "¿Cómo solicito una licencia de un programa de diseño?",
+    "description": "El equipo necesita usar una herramienta de edición de imágenes. ¿Cómo pido la licencia y cuánto suele tardar?",
+    "created_at": "2026-04-20T19:37:41Z"
+  },
+  {
+    "title": "¿Cuál es el límite de tamaño para enviar adjuntos por correo?",
+    "description": "Quiero mandar un vídeo a un cliente y no sé hasta qué tamaño me dejará adjuntar el correo o si debo usar otra cosa.",
+    "created_at": "2026-04-21T17:01:26Z"
+  },
+  {
+    "title": "La app de gastos da error al adjuntar el ticket en PDF",
+    "description": "Cuando intento subir el justificante de un gasto en PDF, la aplicación se queda cargando y al final muestra 'algo ha salido mal'. Con imágenes JPG sí funciona.",
+    "created_at": "2026-04-22T11:29:13Z"
+  },
+  {
+    "title": "El buscador de la herramienta de tickets distingue mayúsculas",
+    "description": "Si busco 'Login' con mayúscula no encuentra los tickets que escribí con 'login' en minúscula. Debería dar igual.",
+    "created_at": "2026-04-22T13:03:26Z"
+  },
+  {
+    "title": "El total del carrito de pedidos internos no se actualiza al quitar líneas",
+    "description": "Si elimino una línea del pedido interno de material, el importe total sigue mostrando el valor anterior hasta que recargo la página.",
+    "created_at": "2026-04-23T14:19:22Z"
+  },
+  {
+    "title": "No me llega el código de verificación por SMS para entrar",
+    "description": "Al iniciar sesión con doble factor, el SMS con el código no llega nunca y no puedo acceder.",
+    "created_at": "2026-04-24T07:22:45Z"
+  },
+  {
+    "title": "La web corporativa muestra error y la están viendo clientes",
+    "description": "La página pública de la empresa devuelve 'Service Unavailable'. Nos están escribiendo clientes preguntando si hemos cerrado.",
+    "created_at": "2026-04-24T11:25:36Z"
+  },
+  {
+    "title": "Pérdida de datos: el informe que estaba editando ha desaparecido",
+    "description": "Estaba trabajando en el informe trimestral en la unidad compartida, se ha colgado el programa y al volver el archivo está vacío. Lo entrego mañana.",
+    "created_at": "2026-04-24T20:54:57Z"
+  },
+  {
+    "title": "¿Dónde encuentro la plantilla oficial de presentaciones?",
+    "description": "Tengo que preparar una presentación para un cliente y quiero usar la plantilla corporativa, pero no sé dónde está guardada.",
+    "created_at": "2026-04-28T07:47:47Z"
+  },
+  {
+    "title": "¿Cómo me uno a una reunión de Teams desde el móvil?",
+    "description": "Voy a estar fuera de la oficina a la hora de una reunión. ¿Cómo me conecto a Teams desde el teléfono?",
+    "created_at": "2026-04-28T10:37:56Z"
+  },
+  {
+    "title": "El selector de fechas del portal de viajes no deja elegir el regreso",
+    "description": "Al reservar un viaje, puedo poner la fecha de ida pero el calendario de vuelta aparece bloqueado y no permite seleccionar nada.",
+    "created_at": "2026-04-28T12:39:58Z"
+  },
+  {
+    "title": "¿Puedo acceder al correo desde un ordenador que no es de la empresa?",
+    "description": "Estoy fuera y solo tengo un ordenador personal. ¿Puedo consultar mi correo corporativo desde el navegador de forma segura?",
+    "created_at": "2026-04-28T12:50:28Z"
+  },
+  {
+    "title": "Añadir la opción de guardar borradores en el formulario de tickets",
+    "description": "A veces empiezo a describir una incidencia y me interrumpen. Poder guardar el borrador y seguir luego evitaría tener que reescribirlo.",
+    "created_at": "2026-04-29T09:14:58Z"
+  },
+  {
+    "title": "Pedir que el portal recuerde mis filtros de búsqueda",
+    "description": "Cada vez que entro al CRM tengo que volver a poner los mismos filtros. Estaría genial que recordara los últimos que usé.",
+    "created_at": "2026-04-30T15:30:46Z"
+  },
+  {
+    "title": "Sugerencia: un acceso rápido a 'mis tickets' desde cualquier pantalla",
+    "description": "Tener siempre a mano un enlace a mis tickets abiertos, sin tener que volver al inicio, me agilizaría mucho el día.",
+    "created_at": "2026-04-30T17:48:23Z"
+  },
+  {
+    "title": "Propuesta: modo de impresión limpio para los informes",
+    "description": "Cuando imprimo un informe salen también los menús y botones. Un botón de 'versión para imprimir' que deje solo el contenido sería muy útil.",
+    "created_at": "2026-05-01T19:16:56Z"
+  },
+  {
+    "title": "Mi portátil no arranca y tengo presentación al comité en 1 hora",
+    "description": "Esta mañana el portátil se queda en una pantalla azul al encender. Tengo que presentar al comité de dirección a las 11:00 y todo está en este equipo.",
+    "created_at": "2026-05-04T10:29:29Z"
+  },
+  {
+    "title": "¿Cómo configuro mi firma con los datos de mi nuevo puesto?",
+    "description": "Me han ascendido y quiero actualizar mi cargo en la firma del correo. ¿Dónde se edita la firma automática?",
+    "created_at": "2026-05-05T09:56:15Z"
+  },
+  {
+    "title": "Posible fuga: he enviado datos a un destinatario equivocado",
+    "description": "Acabo de mandar por error un correo con datos de clientes a una dirección externa que no era. ¿Qué hago de inmediato?",
+    "created_at": "2026-05-06T11:03:19Z"
+  },
+  {
+    "title": "La app móvil de fichaje se cierra al abrirla",
+    "description": "Desde la última actualización, la app de fichaje del móvil se abre y se cierra sola al instante, sin que me dé tiempo a fichar.",
+    "created_at": "2026-05-06T11:08:56Z"
+  },
+  {
+    "title": "Permitir programar el envío de correos para más tarde",
+    "description": "A veces redacto correos por la noche pero prefiero que lleguen por la mañana. Sería útil poder programar la hora de envío.",
+    "created_at": "2026-05-06T11:42:14Z"
+  },
+  {
+    "title": "El portátil se calienta mucho y va lento al abrir varios programas",
+    "description": "Cuando tengo abiertos el CRM, el correo y un par de hojas de cálculo, el equipo se calienta y va muy lento. ¿Se puede revisar?",
+    "created_at": "2026-05-06T15:00:35Z"
+  },
+  {
+    "title": "La conexión del dock se pierde al mover el portátil",
+    "description": "Cuando muevo un poco el portátil, la base de conexión pierde los monitores y el teclado y tengo que volver a enchufar el cable.",
+    "created_at": "2026-05-07T08:25:19Z"
+  },
+  {
+    "title": "El widget del tiempo de la intranet muestra otra ciudad",
+    "description": "El recuadro del tiempo en la página de inicio de la intranet muestra el clima de otra ciudad, no el de nuestra sede.",
+    "created_at": "2026-05-07T17:04:35Z"
+  },
+  {
+    "title": "Propuesta: integrar el calendario del CRM con Outlook",
+    "description": "Sería muy práctico que las reuniones que creo en el CRM aparecieran también en mi calendario de Outlook automáticamente.",
+    "created_at": "2026-05-08T12:34:10Z"
+  },
+  {
+    "title": "El corrector de la herramienta de tickets cambia palabras sin permiso",
+    "description": "Mientras escribo una incidencia, el corrector automático me sustituye términos técnicos por otras palabras y el texto queda raro.",
+    "created_at": "2026-05-10T20:14:46Z"
+  },
+  {
+    "title": "El corrector del editor de documentos marca todo en inglés",
+    "description": "El procesador de textos me subraya todas las palabras en español como erróneas porque está corrigiendo en inglés y no encuentro dónde cambiar el idioma.",
+    "created_at": "2026-05-11T09:24:11Z"
+  },
+  {
+    "title": "La hoja de cálculo compartida tarda muchísimo en abrir",
+    "description": "El Excel de seguimiento del equipo, que está en la unidad compartida, tarda más de cinco minutos en abrirse y a veces se queda colgado.",
+    "created_at": "2026-05-11T15:29:17Z"
+  },
+  {
+    "title": "¿Dónde consulto las políticas de seguridad de la empresa?",
+    "description": "Quiero asegurarme de seguir las normas de seguridad informática. ¿Existe un documento con las políticas y dónde lo encuentro?",
+    "created_at": "2026-05-11T18:59:51Z"
+  },
+  {
+    "title": "¿Dónde se reportan los gastos de kilometraje?",
+    "description": "He hecho varios desplazamientos en mi coche por trabajo. ¿Cómo y dónde declaro los kilómetros para que me los reembolsen?",
+    "created_at": "2026-05-12T15:05:51Z"
+  },
+  {
+    "title": "La pantalla de inicio de sesión carga muy lenta por las mañanas",
+    "description": "Entre las 8 y las 9 la pantalla de login de la intranet tarda más de un minuto en cargar; el resto del día va normal.",
+    "created_at": "2026-05-12T15:37:33Z"
+  },
+  {
+    "title": "Sugerencia: que el buscador admita búsqueda parcial",
+    "description": "El buscador de la intranet solo encuentra la palabra exacta. Sería mucho más útil si encontrara también coincidencias parciales.",
+    "created_at": "2026-05-12T16:26:23Z"
+  },
+  {
+    "title": "El buscador de empleados no encuentra a los nuevos compañeros",
+    "description": "El directorio interno no muestra a las personas que se han incorporado este mes, aunque ya tienen correo y acceso.",
+    "created_at": "2026-05-12T18:01:35Z"
+  },
+  {
+    "title": "No puedo acceder al CRM y tengo una demo con cliente en 30 minutos",
+    "description": "Al entrar en el CRM me sale 'error 500' una y otra vez. Tengo una demostración con un cliente importante dentro de media hora y necesito sacar su ficha.",
+    "created_at": "2026-05-13T09:58:30Z"
+  },
+  {
+    "title": "¿Puedo instalar yo mismo una extensión en el navegador?",
+    "description": "Me gustaría añadir una extensión para gestionar pestañas, pero no sé si tengo permisos o si tengo que pediros autorización.",
+    "created_at": "2026-05-14T07:43:34Z"
+  },
+  {
+    "title": "¿Cómo añado a un compañero a una lista de distribución?",
+    "description": "Gestiono una lista de correo del equipo y se ha incorporado alguien nuevo. ¿Cómo lo agrego para que reciba los avisos?",
+    "created_at": "2026-05-14T14:47:48Z"
+  },
+  {
+    "title": "Se ha borrado la carpeta compartida del proyecto",
+    "description": "La unidad de red \\\\fileserver\\proyectos\\Q3 ha desaparecido entera. Ahí estaba toda la documentación del cierre de trimestre.",
+    "created_at": "2026-05-14T18:56:24Z"
+  },
+  {
+    "title": "Propuesta: confirmación antes de cerrar un ticket",
+    "description": "He cerrado tickets sin querer al pinchar demasiado rápido. Un mensaje de '¿seguro que quieres cerrarlo?' evitaría errores.",
+    "created_at": "2026-05-14T19:19:34Z"
+  },
+  {
+    "title": "No puedo firmar el contrato y el cliente espera al teléfono",
+    "description": "La herramienta de firma electrónica se queda colgada en 'procesando'. Tengo al cliente al teléfono esperando para cerrar la operación hoy.",
+    "created_at": "2026-05-15T10:04:14Z"
+  },
+  {
+    "title": "Petición: poder marcar un ticket como duplicado de otro",
+    "description": "A veces nos llegan dos tickets de la misma incidencia. Sería práctico poder enlazarlos marcando uno como duplicado del otro.",
+    "created_at": "2026-05-17T08:38:10Z"
+  },
+  {
+    "title": "El buscador de la intranet no devuelve resultados",
+    "description": "Busque lo que busque en la intranet, siempre dice 'no se han encontrado resultados', incluso con documentos que sé que existen.",
+    "created_at": "2026-05-17T20:39:03Z"
+  },
+  {
+    "title": "El autoguardado del editor borra el contenido en vez de guardarlo",
+    "description": "Estaba escribiendo un acta, saltó el autoguardado y se quedó todo en blanco. He perdido un buen rato de trabajo.",
+    "created_at": "2026-05-18T09:48:20Z"
+  },
+  {
+    "title": "Permitir adjuntar varias imágenes a la vez en gastos",
+    "description": "En la herramienta de gastos solo puedo subir un justificante cada vez. Poder seleccionar varios de golpe ahorraría mucho tiempo.",
+    "created_at": "2026-05-19T11:02:02Z"
+  },
+  {
+    "title": "¿Cómo se solicita el teletrabajo en el portal?",
+    "description": "Quiero pedir un día de trabajo en casa. ¿Se gestiona desde el portal de RRHH o hay que hablarlo con el responsable?",
+    "created_at": "2026-05-19T13:47:13Z"
+  },
+  {
+    "title": "¿Qué tengo que hacer con el equipo cuando me vaya de la empresa",
+    "description": "Termino mi contrato a fin de mes y quiero saber cómo devuelvo el portátil y el móvil y qué pasa con mis archivos.",
+    "created_at": "2026-05-20T09:04:27Z"
+  },
+  {
+    "title": "El selector de departamento en el alta de usuario está vacío",
+    "description": "Al dar de alta a un nuevo compañero, el desplegable para elegir su departamento aparece sin ninguna opción.",
+    "created_at": "2026-05-20T13:37:31Z"
+  },
+  {
+    "title": "Sugerencia: que el sistema avise si un ticket lleva mucho sin respuesta",
+    "description": "Para que no se nos quede ninguna incidencia olvidada, sería útil que el sistema avisara de los tickets que llevan días sin actividad.",
+    "created_at": "2026-05-21T13:19:40Z"
+  },
+  {
+    "title": "Añadir un selector de tema de color en el dashboard",
+    "description": "Estaría bien poder personalizar un poco los colores del panel de KPIs para distinguir mejor los míos de los del equipo.",
+    "created_at": "2026-05-21T16:58:45Z"
+  },
+  {
+    "title": "Añadir recordatorios para tareas pendientes en el CRM",
+    "description": "Sería de gran ayuda poder ponerme un recordatorio asociado a una oportunidad para que me avise el día que toca hacer seguimiento.",
+    "created_at": "2026-05-21T17:35:16Z"
+  },
+  {
+    "title": "¿Puedo conectar dos pantallas externas a la vez al portátil?",
+    "description": "Tengo dos monitores en mi puesto. ¿El portátil soporta las dos a la vez o necesito una base de conexión?",
+    "created_at": "2026-05-22T15:09:53Z"
+  },
+  {
+    "title": "Petición: poder responder a un ticket desde el propio correo de aviso",
+    "description": "Cuando me llega el aviso de un ticket por correo, tengo que entrar a la herramienta para responder. Poder contestar desde el correo sería más ágil.",
+    "created_at": "2026-05-22T19:56:50Z"
+  },
+  {
+    "title": "La fecha de entrega calculada en el pedido sale en fin de semana",
+    "description": "El sistema calcula la fecha de entrega prevista cayendo en sábado o domingo, cuando no se hacen entregas esos días.",
+    "created_at": "2026-05-25T13:15:19Z"
+  },
+  {
+    "title": "¿Puedo conectar el portátil a la tele de la sala para presentar?",
+    "description": "En la sala pequeña hay una tele. ¿Cómo conecto mi portátil para proyectar la presentación, por cable o de forma inalámbrica?",
+    "created_at": "2026-05-26T10:03:18Z"
+  },
+  {
+    "title": "¿Cómo comparto un archivo grande con alguien externo?",
+    "description": "Necesito enviar una carpeta de varios gigas a un proveedor. ¿Qué herramienta debo usar para compartirla de forma segura?",
+    "created_at": "2026-05-26T12:50:12Z"
+  },
+  {
+    "title": "Error al adjuntar archivos de más de 10 MB en la herramienta de tickets",
+    "description": "Si el adjunto pasa de 10 MB, el formulario se recarga y pierdo todo lo que había escrito, sin ningún mensaje de error.",
+    "created_at": "2026-05-26T18:34:35Z"
+  },
+  {
+    "title": "El informe de ventas no incluye la última semana",
+    "description": "El informe mensual de ventas parece cortarse en la penúltima semana y no recoge los pedidos de los últimos días.",
+    "created_at": "2026-05-27T12:51:36Z"
+  },
+  {
+    "title": "Toda la planta 3 se ha quedado sin red",
+    "description": "Ningún equipo de la tercera planta tiene conexión desde hace 20 minutos. Nadie puede trabajar. Somos unas 40 personas.",
+    "created_at": "2026-05-27T13:58:20Z"
+  },
+  {
+    "title": "Los importes en el resumen de gastos salen sin decimales",
+    "description": "El resumen mensual de gastos redondea todos los importes a euros enteros, así que los totales no cuadran con los justificantes.",
+    "created_at": "2026-05-27T15:18:27Z"
+  },
+  {
+    "title": "¿Hay alguna forma de ver los tickets que ya he cerrado?",
+    "description": "Quiero repasar incidencias antiguas que resolví hace meses, pero en mi panel solo veo los abiertos. ¿Dónde están los cerrados?",
+    "created_at": "2026-05-27T17:32:57Z"
+  },
+  {
+    "title": "El histórico de pedidos solo muestra los últimos 30 días",
+    "description": "Antes podía ver todos los pedidos de un cliente y ahora la pantalla corta a 30 días sin que yo haya cambiado ningún filtro.",
+    "created_at": "2026-05-28T14:20:25Z"
+  },
+  {
+    "title": "Sugerencia: que la intranet tenga un buscador de salas libres",
+    "description": "Sería muy cómodo poder ver de un vistazo qué salas de reunión están libres a una hora concreta, en vez de ir mirando una a una.",
+    "created_at": "2026-05-29T07:47:25Z"
+  },
+  {
+    "title": "El enlace de restablecer contraseña ha caducado antes de usarlo",
+    "description": "Pedí restablecer la contraseña, tardé cinco minutos en abrir el correo y al pinchar el enlace ya decía que había caducado.",
+    "created_at": "2026-05-29T13:19:51Z"
+  },
+  {
+    "title": "El calendario de Teams muestra las reuniones una hora antes",
+    "description": "Todas mis reuniones aparecen una hora antes de la hora real. Creo que es un tema de zona horaria pero no sé cambiarlo y ya he llegado tarde a dos.",
+    "created_at": "2026-05-29T16:51:18Z"
+  },
+  {
+    "title": "No consigo conectar los auriculares bluetooth al ordenador",
+    "description": "Mis auriculares se emparejan con el móvil sin problema, pero con el portátil de la empresa no hay manera de que conecten.",
+    "created_at": "2026-05-29T18:16:18Z"
+  },
+  {
+    "title": "Outlook duplica los correos en la bandeja de entrada",
+    "description": "Desde ayer cada correo que recibo aparece dos o tres veces. Si borro uno, los demás se quedan.",
+    "created_at": "2026-05-30T12:34:28Z"
+  },
+  {
+    "title": "¿Cómo activo el reenvío de llamadas de mi extensión al móvil?",
+    "description": "Voy a estar fuera del puesto pero quiero seguir recibiendo las llamadas de mi extensión en el móvil. ¿Cómo se configura?",
+    "created_at": "2026-05-31T13:10:30Z"
+  },
+  {
+    "title": "Llevo sin poder imprimir desde que cambiaron mi ordenador",
+    "description": "Me cambiaron el equipo la semana pasada y desde entonces no consigo imprimir; no me aparece ninguna impresora disponible.",
+    "created_at": "2026-05-31T16:30:01Z"
+  },
+  {
+    "title": "La videollamada se congela al compartir pantalla",
+    "description": "Cada vez que comparto pantalla en una reunión, mi vídeo y mi audio se congelan para los demás hasta que dejo de compartir.",
+    "created_at": "2026-06-01T07:32:00Z"
+  },
+  {
+    "title": "El cliente no puede acceder al portal y firma hoy",
+    "description": "Un cliente nos dice que no puede entrar al portal de cliente para revisar el documento que tiene que firmar hoy. Da 'acceso denegado'.",
+    "created_at": "2026-06-01T11:30:29Z"
+  },
+  {
+    "title": "El campo de teléfono del CRM no admite el prefijo internacional",
+    "description": "Al guardar un contacto extranjero, el campo de teléfono rechaza el símbolo '+' del prefijo y no deja guardar la ficha.",
+    "created_at": "2026-06-02T14:12:20Z"
+  },
+  {
+    "title": "Bloqueo total: nadie del almacén puede escanear productos",
+    "description": "Las pistolas de código de barras del almacén han dejado de comunicarse con el sistema y no se puede registrar ninguna entrada ni salida de mercancía.",
+    "created_at": "2026-06-02T19:22:00Z"
+  },
+  {
+    "title": "El informe exportado pierde los colores de las celdas",
+    "description": "Al exportar el cuadro de seguimiento a Excel, se pierde el formato de colores que uso para marcar estados y queda todo en blanco.",
+    "created_at": "2026-06-03T17:17:29Z"
+  },
+  {
+    "title": "Me gustaría poder etiquetar pedidos con etiquetas personalizadas",
+    "description": "Para organizarme mejor, sería práctico poder ponerles mis propias etiquetas a los pedidos, además de las categorías que ya hay.",
+    "created_at": "2026-06-04T08:58:39Z"
+  },
+  {
+    "title": "¿Qué hago si pierdo la tarjeta de acceso al edificio?",
+    "description": "Creo que he extraviado mi tarjeta de acceso. ¿A quién aviso y cómo consigo una nueva?",
+    "created_at": "2026-06-04T14:35:47Z"
+  },
+  {
+    "title": "Sugerencia: recordatorio para devolver el material prestado",
+    "description": "Cuando pido prestado un proyector o un portátil de repuesto, estaría bien recibir un recordatorio para devolverlo a tiempo.",
+    "created_at": "2026-06-05T08:23:53Z"
+  },
+  {
+    "title": "Poner un acceso directo al portal de nóminas en la intranet",
+    "description": "Cada mes tengo que buscar la dirección del portal de nóminas. ¿Podríais poner un enlace directo en la página de inicio de la intranet?",
+    "created_at": "2026-06-05T10:12:02Z"
+  },
+  {
+    "title": "¿Cómo configuro la impresora para imprimir a doble cara por defecto?",
+    "description": "Imprimo muchos documentos y quiero ahorrar papel. ¿Cómo dejo el doble cara puesto siempre?",
+    "created_at": "2026-06-05T13:28:05Z"
+  },
+  {
+    "title": "¿Cómo solicito un día de asuntos propios?",
+    "description": "Necesito ausentarme un día por un tema personal y no sé si se pide igual que las vacaciones o por otra vía.",
+    "created_at": "2026-06-06T09:52:51Z"
+  },
+  {
+    "title": "¿Cómo configuro la respuesta automática de vacaciones en el correo?",
+    "description": "La semana que viene estoy fuera y quiero dejar un mensaje automático de ausencia, pero no doy con la opción en Outlook.",
+    "created_at": "2026-06-07T11:58:16Z"
+  },
+  {
+    "title": "Añadir más plantillas a la herramienta de presentaciones",
+    "description": "Las plantillas actuales se nos quedan cortas. ¿Se podrían añadir algunas más variadas para distintos tipos de cliente?",
+    "created_at": "2026-06-08T08:19:53Z"
+  },
+  {
+    "title": "Poder marcar tickets como favoritos o destacados",
+    "description": "Cuando hay un ticket que requiere seguimiento especial, me gustaría poder destacarlo para tenerlo siempre a la vista.",
+    "created_at": "2026-06-08T11:30:02Z"
+  },
+  {
+    "title": "¿Cómo cambio el idioma de la interfaz del ERP a español?",
+    "description": "El ERP me aparece en inglés y me costaría menos en español. ¿Se puede cambiar el idioma y cómo?",
+    "created_at": "2026-06-08T12:46:44Z"
+  },
+  {
+    "title": "La barra de progreso de la subida se queda al 99%",
+    "description": "Cuando subo un documento a la intranet, la barra llega al 99% y se queda ahí indefinidamente, aunque el archivo a veces sí termina subiéndose.",
+    "created_at": "2026-06-08T15:04:12Z"
+  },
+  {
+    "title": "El móvil de empresa no sincroniza el correo",
+    "description": "El correo en el móvil corporativo se quedó en el de hace tres días. En el ordenador llega todo bien, pero en el teléfono no entra nada nuevo.",
+    "created_at": "2026-06-09T13:22:47Z"
+  },
+  {
+    "title": "¿Cómo conecto un segundo monitor al portátil?",
+    "description": "Me han dado un monitor extra pero no sé qué cable necesito ni cómo se configura para que se vea en las dos pantallas.",
+    "created_at": "2026-06-09T20:12:39Z"
+  },
+  {
+    "title": "El formulario de alta de proveedor no acepta NIF con letra",
+    "description": "Al dar de alta a un proveedor, el campo de NIF rechaza cualquier valor con letra final y solo deja meter números, pero los NIF llevan letra.",
+    "created_at": "2026-06-10T13:21:52Z"
+  },
+  {
+    "title": "Propuesta: añadir un modo oscuro a la intranet",
+    "description": "Trabajo muchas horas frente a la pantalla y un tema oscuro me iría muy bien para la vista. ¿Se podría añadir como opción?",
+    "created_at": "2026-06-10T15:01:00Z"
+  },
+  {
+    "title": "No recibo los correos de una lista de distribución a la que pertenezco",
+    "description": "Estoy en la lista del equipo de proyecto pero no me llegan los correos que mandan a esa dirección, aunque los demás sí los reciben.",
+    "created_at": "2026-06-10T17:29:02Z"
+  },
+  {
+    "title": "El TPV de recepción no cobra a los clientes",
+    "description": "El datáfono de recepción da error en todas las tarjetas desde hace media hora y hay cola de gente esperando para pagar.",
+    "created_at": "2026-06-12T17:41:41Z"
+  },
+  {
+    "title": "Añadir notificación por correo cuando me asignan un ticket",
+    "description": "Ahora mismo me entero por casualidad de que tengo un ticket nuevo. Sería ideal recibir un aviso por correo en cuanto me lo asignan.",
+    "created_at": "2026-06-12T19:55:17Z"
+  },
+  {
+    "title": "Petición: aumentar el tiempo antes de que se cierre la sesión",
+    "description": "La sesión del portal se cierra muy rápido por inactividad y pierdo lo que estoy haciendo. ¿Se puede ampliar ese tiempo?",
+    "created_at": "2026-06-15T10:45:59Z"
+  },
+  {
+    "title": "¿Cómo doy de alta a una persona en prácticas en los sistemas?",
+    "description": "Empieza un becario el lunes y no sé qué pasos seguir para que tenga correo, acceso a la red y al CRM.",
+    "created_at": "2026-06-15T11:37:05Z"
+  },
+  {
+    "title": "Permitir ver el historial de cambios de una oportunidad",
+    "description": "Estaría bien poder ver quién ha modificado una oportunidad y cuándo, para entender por qué ha cambiado de estado.",
+    "created_at": "2026-06-17T13:02:05Z"
+  },
+  {
+    "title": "¿Cómo cambio la cuenta bancaria donde me ingresan la nómina?",
+    "description": "He cambiado de banco y necesito actualizar el número de cuenta para la nómina. ¿Dónde se hace ese cambio?",
+    "created_at": "2026-06-17T14:32:50Z"
+  },
+  {
+    "title": "¿Cómo solicito un certificado digital para firmar documentos?",
+    "description": "Necesito firmar documentos oficiales y me han dicho que hace falta certificado digital. ¿Cómo lo pido?",
+    "created_at": "2026-06-18T10:46:53Z"
+  },
+  {
+    "title": "¿Dónde está el manual de la herramienta de gastos?",
+    "description": "Tengo que presentar mis primeros gastos y agradecería una guía. ¿Hay un manual o vídeo de cómo se usa?",
+    "created_at": "2026-06-19T12:53:06Z"
+  },
+  {
+    "title": "Añadir un contador de caracteres en el campo de descripción",
+    "description": "Al rellenar incidencias largas no sé si me estoy pasando del límite. Un contador de caracteres ayudaría a no quedarse corto ni largo.",
+    "created_at": "2026-06-19T14:05:04Z"
+  },
+  {
+    "title": "El filtro de fechas del informe ignora el año",
+    "description": "Si filtro un informe entre enero y marzo, me trae datos de enero a marzo de todos los años, no solo del actual.",
+    "created_at": "2026-06-19T19:34:13Z"
+  },
+  {
+    "title": "No se actualizan los precios en el catálogo del ERP",
+    "description": "Hemos cambiado tarifas pero el catálogo sigue mostrando los precios antiguos al crear pedidos. ¿Hay que refrescar algo?",
+    "created_at": "2026-06-20T11:15:07Z"
+  },
+  {
+    "title": "Me gustaría recibir un resumen semanal de mis tickets",
+    "description": "Sería útil que cada lunes me llegara un correo con un resumen de los tickets que tengo abiertos y su estado.",
+    "created_at": "2026-06-22T09:46:53Z"
+  },
+  {
+    "title": "Alguien ha intentado entrar en mi cuenta de correo",
+    "description": "He recibido tres avisos de intento de inicio de sesión desde una ubicación que no es la mía. Me preocupa que esté comprometida, ¿qué hago?",
+    "created_at": "2026-06-23T18:19:38Z"
+  },
+  {
+    "title": "La herramienta de encuestas internas no deja enviar respuestas",
+    "description": "He rellenado la encuesta de clima laboral y al darle a enviar no pasa nada; el botón parece que no responde.",
+    "created_at": "2026-06-24T08:19:03Z"
+  }
+]
