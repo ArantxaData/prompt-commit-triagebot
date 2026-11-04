@@ -1,9 +1,9 @@
 import logging
 
-from fastapi import FastAPI, status
+from fastapi import FastAPI, HTTPException, status
 
 from app import classifier, db
-from app.models import Ticket, TicketCreate
+from app.models import Ticket, TicketCreate, TicketUpdate
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +30,25 @@ def create_ticket(ticket: TicketCreate) -> dict:
     )
 
 
+@app.get("/tickets", response_model=list[Ticket])
+def list_tickets(
+    category: str | None = None,
+    priority: str | None = None,
+    status: str | None = None,
+) -> list[dict]:
+    # Los filtros vacíos (p. ej. un <select> sin elegir) se ignoran en db.list_tickets.
+    return db.list_tickets(category=category, priority=priority, status=status)
+
+
+@app.patch("/tickets/{ticket_id}", response_model=Ticket)
+def update_ticket(ticket_id: int, changes: TicketUpdate) -> dict:
+    # status y priority ya vienen validados contra el enum (si no, 422).
+    ticket = db.update_ticket(ticket_id, status=changes.status, priority=changes.priority)
+    if ticket is None:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+    return ticket
+
+
 # TODO: implementar durante el bootcamp.
 # Endpoints esperados por los tests:
-# - GET /tickets
-# - PATCH /tickets/{ticket_id}
 # - GET /
