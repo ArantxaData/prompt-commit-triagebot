@@ -96,6 +96,6 @@ Los detalles obligatorios están en:
 
 ## Equipo
 
-Nombres:
+Nombres: Nerea Rodríguez
 
-Metodología: `Vibe` / `Spec-Driven`
+Metodología: `Vibe` 
