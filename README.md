@@ -96,6 +96,6 @@ Los detalles obligatorios están en:
 
 ## Equipo
 
-Nombres:
+Nombres: Arantxa / Vibe
 
 Metodología: `Vibe` / `Spec-Driven`
