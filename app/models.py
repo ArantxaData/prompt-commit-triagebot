@@ -14,7 +14,8 @@ Status = Literal["open", "in_progress", "closed"]
 class TicketCreate(BaseModel):
     """Entrada: título y descripción obligatorios; la fecha la aporta el origen si la tiene."""
     
-    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     title: str = Field(min_length=1, max_length=200)
     description: str = Field(min_length=1, max_length=5000)
     created_at: str | None = None
