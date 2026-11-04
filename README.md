@@ -96,6 +96,7 @@ Los detalles obligatorios están en:
 
 ## Equipo
 
+Nombres: Arantxa
 Nombres: Nerea Rodríguez
 
 Metodología: `Vibe` 
