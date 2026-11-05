@@ -1,5 +1,7 @@
 """GET /tickets/stats: total y recuento por categoría, prioridad y estado."""
 
+import itertools
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -26,8 +28,14 @@ def client():
     return TestClient(app)
 
 
+_serial = itertools.count(1)
+
+
 def add(category="bug", priority="P1", status="open"):
-    ticket = db.insert_ticket("t", "d", {"category": category, "priority": priority, "tags": []})
+    # Título distinto en cada llamada: dos tickets con el mismo texto se rechazan.
+    ticket = db.insert_ticket(
+        f"t{next(_serial)}", "d", {"category": category, "priority": priority, "tags": []}
+    )
     if status != "open":
         db.update_ticket(ticket["id"], status=status)
     return ticket
