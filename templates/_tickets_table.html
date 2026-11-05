@@ -1,16 +1,34 @@
-<table class="min-w-full divide-y divide-slate-200 bg-white shadow-sm ring-1 ring-slate-200 rounded-lg overflow-hidden">
-  <thead class="bg-slate-100">
-    <tr>
-      <th class="px-3 py-2 text-left text-sm font-semibold">ID</th>
-      <th class="px-3 py-2 text-left text-sm font-semibold">Título</th>
-      <th class="px-3 py-2 text-left text-sm font-semibold">Categoría</th>
-      <th class="px-3 py-2 text-left text-sm font-semibold">Prioridad</th>
-      <th class="px-3 py-2 text-left text-sm font-semibold">Tags</th>
-      <th class="px-3 py-2 text-left text-sm font-semibold">Estado</th>
-      <th class="px-3 py-2 text-left text-sm font-semibold">Creado</th>
-    </tr>
-  </thead>
-  <tbody id="tickets-table-body">
-    <!-- TODO: renderizar tickets con Jinja2 -->
-  </tbody>
-</table>
+{# Fragmento que HTMX refresca al cambiar un filtro o crear un ticket. #}
+<p class="mb-2 text-sm text-slate-500" aria-live="polite">
+  {{ tickets | length }} {{ "ticket" if tickets | length == 1 else "tickets" }}
+</p>
+
+{% if tickets %}
+<div class="overflow-x-auto rounded-lg shadow-sm ring-1 ring-slate-200">
+  <table class="min-w-full divide-y divide-slate-200 bg-white">
+    <thead class="bg-slate-100">
+      <tr>
+        <th class="px-3 py-2 text-left text-sm font-semibold">ID</th>
+        <th class="px-3 py-2 text-left text-sm font-semibold">Título</th>
+        <th class="px-3 py-2 text-left text-sm font-semibold">Categoría</th>
+        <th class="px-3 py-2 text-left text-sm font-semibold">Prioridad</th>
+        <th class="px-3 py-2 text-left text-sm font-semibold">Tags</th>
+        <th class="px-3 py-2 text-left text-sm font-semibold">Responsable</th>
+        <th class="px-3 py-2 text-left text-sm font-semibold">Estado</th>
+        <th class="px-3 py-2 text-left text-sm font-semibold">Fecha límite</th>
+        <th class="px-3 py-2 text-left text-sm font-semibold">Creado</th>
+      </tr>
+    </thead>
+    <tbody id="tickets-table-body" class="divide-y divide-slate-100">
+      {% for t in tickets %}
+      {% include "_ticket_row.html" %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">
+  No hay tickets con estos filtros.
+  <a href="/" class="ml-1 text-sky-700 underline">Limpiar filtros</a>
+</div>
+{% endif %}

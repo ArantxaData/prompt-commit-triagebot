@@ -165,11 +165,23 @@ def get_ticket(ticket_id: int, conn: sqlite3.Connection | None = None) -> dict |
             conn.close()
 
 
+# Orden del listado: "recent" (más nuevos primero) o "priority" (P1 primero y, dentro de
+# cada prioridad, los más antiguos primero; "no inferido" al final).
+SORTS = {
+    "recent": "id DESC",
+    "priority": (
+        "CASE priority WHEN 'P1' THEN 1 WHEN 'P2' THEN 2 WHEN 'P3' THEN 3 ELSE 4 END,"
+        " created_at ASC, id ASC"
+    ),
+}
+
+
 def list_tickets(
     category: str | None = None,
     priority: str | None = None,
     status: str | None = None,
     responsable: str | None = None,
+    sort: str = "recent",
 ) -> list[dict]:
     filters = {
         "category": category,
@@ -182,7 +194,7 @@ def list_tickets(
     query = "SELECT * FROM tickets"
     if where:
         query += f" WHERE {where}"
-    query += " ORDER BY id DESC"
+    query += f" ORDER BY {SORTS[sort]}"  # sort solo puede ser una clave de SORTS
     conn = get_connection()
     try:
         return [_row_to_ticket(r) for r in conn.execute(query, tuple(active.values()))]

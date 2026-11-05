@@ -1,0 +1,58 @@
+{% from "_macros.html" import priority_classes, category_classes %}
+{# Una fila editable. Al cambiar estado o prioridad se guarda y la fila se vuelve a pintar. #}
+<tr id="ticket-{{ t.id }}" class="align-top hover:bg-slate-50"
+    hx-patch="/ui/tickets/{{ t.id }}" hx-trigger="change" hx-include="this"
+    hx-target="this" hx-swap="outerHTML settle:800ms">
+  <td class="px-3 py-3 text-sm text-slate-500">#{{ t.id }}</td>
+  <td class="px-3 py-3 max-w-md">
+    <details>
+      <summary class="ticket-title cursor-pointer text-sm font-medium text-slate-900">{{ t.title }}</summary>
+      <p class="mt-2 whitespace-pre-line text-sm text-slate-600">{{ t.description }}</p>
+    </details>
+  </td>
+  <td class="px-3 py-3">
+    <span class="inline-block rounded-full px-2 py-0.5 text-xs font-medium ring-1 {{ category_classes(t.category) }}">
+      {% if t.category == NOT_INFERRED %}no inferido{% else %}{{ CATEGORY_LABELS[t.category] }}{% endif %}
+    </span>
+  </td>
+  <td class="px-3 py-3">
+    <select name="priority" aria-label="Prioridad del ticket {{ t.id }}"
+            class="rounded-md px-2 py-1 text-sm font-semibold ring-1 {{ priority_classes(t.priority) }}">
+      {% if t.priority == NOT_INFERRED %}
+      <option value="{{ NOT_INFERRED }}" selected>no inferido</option>
+      {% endif %}
+      {% for value, label in PRIORITIES %}
+      <option value="{{ value }}" {{ "selected" if t.priority == value }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </td>
+  <td class="px-3 py-3">
+    {% for tag in t.tags %}
+    <span class="mr-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">{{ tag }}</span>
+    {% else %}
+    <span class="text-slate-400">—</span>
+    {% endfor %}
+  </td>
+  <td class="px-3 py-3 text-sm {{ 'text-slate-800' if t.responsable else 'text-slate-400' }}">
+    {{ t.responsable or "—" }}
+  </td>
+  <td class="px-3 py-3">
+    <select name="status" aria-label="Estado del ticket {{ t.id }}"
+            class="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm">
+      {% for value, label in STATUSES %}
+      <option value="{{ value }}" {{ "selected" if t.status == value }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    {% if error %}<p class="mt-1 max-w-[12rem] text-xs text-red-600" role="alert">{{ error }}</p>{% endif %}
+  </td>
+  <td class="px-3 py-3 whitespace-nowrap text-sm">
+    {% if t.due_date %}
+    {% set overdue = t.due_date < today and t.status in ("open", "in_progress") %}
+    <span class="{{ 'font-semibold text-red-600' if overdue else 'text-slate-600' }}"
+          {% if overdue %}title="Vencido"{% endif %}>{{ t.due_date }}{% if overdue %} ⚠{% endif %}</span>
+    {% else %}
+    <span class="text-slate-400">—</span>
+    {% endif %}
+  </td>
+  <td class="px-3 py-3 whitespace-nowrap text-sm text-slate-500">{{ t.created_at[:16] | replace("T", " ") }}</td>
+</tr>

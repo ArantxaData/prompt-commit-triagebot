@@ -1,0 +1,39 @@
+{# Formulario de alta. Se vuelve a pintar entero: vacío y cerrado tras crear, abierto con errores si falla. #}
+{% set values = form["values"] %}  {# form.values sería el método dict.values #}
+{% set errors = form["errors"] %}
+<details id="new-ticket" class="mt-6 rounded-lg bg-white p-4 shadow-sm ring-1 ring-slate-200" {{ "open" if errors }}>
+  <summary class="cursor-pointer text-sm font-semibold text-sky-800">+ Nuevo ticket</summary>
+  <form class="mt-4 grid gap-4 md:grid-cols-2"
+        hx-post="/ui/tickets" hx-target="#new-ticket" hx-swap="outerHTML"
+        hx-disabled-elt="find button" hx-indicator="#classifying">
+    <div class="md:col-span-2">
+      <label for="f-title" class="block text-sm font-medium">Título</label>
+      <input id="f-title" name="title" type="text" maxlength="200" required
+             value="{{ values.title }}"
+             class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
+      {% if errors.title %}<p class="mt-1 text-sm text-red-600">{{ errors.title }}</p>{% endif %}
+    </div>
+    <div class="md:col-span-2">
+      <label for="f-description" class="block text-sm font-medium">Descripción</label>
+      <textarea id="f-description" name="description" rows="4" maxlength="5000" required
+                class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm">{{ values.description }}</textarea>
+      {% if errors.description %}<p class="mt-1 text-sm text-red-600">{{ errors.description }}</p>{% endif %}
+    </div>
+    <div>
+      <label for="f-responsable" class="block text-sm font-medium">
+        Responsable <span class="font-normal text-slate-400">(opcional)</span>
+      </label>
+      <input id="f-responsable" name="responsable" type="text" maxlength="100"
+             value="{{ values.responsable }}"
+             class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
+      {% if errors.responsable %}<p class="mt-1 text-sm text-red-600">{{ errors.responsable }}</p>{% endif %}
+    </div>
+    <div class="flex items-end gap-3">
+      <button type="submit"
+              class="rounded-md bg-sky-700 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-800 disabled:opacity-50">
+        Crear y clasificar
+      </button>
+      <span id="classifying" class="htmx-indicator text-sm text-slate-500">Clasificando…</span>
+    </div>
+  </form>
+</details>
