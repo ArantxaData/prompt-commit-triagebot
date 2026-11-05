@@ -16,6 +16,8 @@
       outline: 2px solid #0369a1;
       outline-offset: 2px;
     }
+    /* Campo que ha llegado a su límite de caracteres (lo marca el script del final). */
+    input[data-over-limit], textarea[data-over-limit] { border-color: #ef4444; }
     table { font-variant-numeric: tabular-nums; }
     .scroll-thin { scrollbar-width: thin; scrollbar-color: #94a3b8 transparent; }
 
@@ -44,7 +46,7 @@
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-900 antialiased">
+<body class="bg-slate-50 text-slate-900 antialiased" data-latin="{{ LATIN_CLASS }}">
   <main class="mx-auto max-w-7xl px-4 py-6 md:px-6">
     <header>
       <h1 class="text-3xl font-bold tracking-tight">TriageBot</h1>
@@ -164,6 +166,105 @@
           : "El servidor ha rechazado la petición (código " + status + ").");
       });
       document.getElementById("app-alert-close").addEventListener("click", hide);
+    })();
+  </script>
+
+  <script>
+    /* Límites del formulario de alta: no se deja escribir más ni pegar un texto que no quepa,
+       ni escribir o pegar caracteres no latinos (emojis, chino, cirílico...), y se avisa. Los
+       listeners cuelgan de document porque HTMX vuelve a pintar el formulario entero. El
+       atributo maxlength y la validación del servidor siguen ahí como red de seguridad. */
+    (function () {
+      var timers = new WeakMap();
+      /* Misma lista blanca que valida el servidor (app/models.py: LATIN_CLASS). */
+      var LATIN = document.body.dataset.latin;
+      var BAD = new RegExp("[^" + LATIN + "]");
+      var BAD_ALL = new RegExp("[^" + LATIN + "]", "g");
+      var MSG_TYPE = "Solo se admiten caracteres latinos: no se permiten emojis ni otros alfabetos.";
+      var MSG_PASTE = "No es posible pegar: el texto contiene caracteres no latinos (emojis u otros alfabetos).";
+
+      function limitOf(el) {
+        var inForm = el && el.closest && el.closest("#new-ticket");
+        var isField = el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA");
+        return inForm && isField && el.maxLength > 0 ? el.maxLength : 0;
+      }
+      function box(el) {
+        return document.querySelector('.limit-msg[data-for="' + el.id + '"]');
+      }
+      function hide(el) {
+        var b = box(el);
+        if (b) { b.hidden = true; b.textContent = ""; }
+        delete el.dataset.overLimit;
+      }
+      function show(el, text) {
+        var b = box(el);
+        if (!b) return;
+        b.textContent = text;
+        b.hidden = false;
+        el.dataset.overLimit = "";
+        clearTimeout(timers.get(el));
+        timers.set(el, setTimeout(function () { hide(el); }, 5000));
+      }
+      function overflows(el, incoming) {
+        var selected = Math.abs(el.selectionEnd - el.selectionStart);
+        return el.value.length - selected + incoming > limitOf(el);
+      }
+
+      /* Escribir: al llegar al límite no entra nada más. */
+      document.addEventListener("beforeinput", function (e) {
+        var el = e.target, max = limitOf(el);
+        if (!max || e.isComposing || e.inputType === "insertFromPaste") return;
+        if (e.inputType.indexOf("insert") !== 0) return;
+        if (BAD.test(e.data || "")) {
+          e.preventDefault();
+          show(el, MSG_TYPE);
+          return;
+        }
+        var line = e.inputType === "insertLineBreak" || e.inputType === "insertParagraph";
+        var incoming = line ? 1 : (e.data || "").length;
+        if (incoming && overflows(el, incoming)) {
+          e.preventDefault();
+          show(el, "Excede el límite de " + max + " caracteres.");
+        }
+      }, true);
+
+      /* Pegar: si no cabe entero, no se pega nada (no se recorta en silencio). */
+      document.addEventListener("paste", function (e) {
+        var el = e.target, max = limitOf(el);
+        if (!max) return;
+        var text = (e.clipboardData ? e.clipboardData.getData("text") : "").replace(/\r\n?/g, "\n");
+        if (BAD.test(text)) {
+          e.preventDefault();
+          show(el, MSG_PASTE);
+          return;
+        }
+        if (overflows(el, text.length)) {
+          e.preventDefault();
+          show(el, "No es posible pegar: el texto excede el límite de " + max + " caracteres.");
+        }
+      }, true);
+
+      /* Red de seguridad para lo que se cuele sin pasar por beforeinput/paste (composición con
+         IME, arrastrar y soltar, autocompletado): se quitan los caracteres no latinos. */
+      function clean(el) {
+        if (!BAD.test(el.value)) return false;
+        var kept = el.value.slice(0, el.selectionStart).replace(BAD_ALL, "").length;
+        el.value = el.value.replace(BAD_ALL, "");
+        el.setSelectionRange(kept, kept);
+        show(el, MSG_TYPE);
+        return true;
+      }
+      /* Mientras se compone con un IME no se toca el valor (se rompería la composición). */
+      document.addEventListener("compositionend", function (e) {
+        if (limitOf(e.target)) clean(e.target);
+      }, true);
+      document.addEventListener("input", function (e) {
+        var el = e.target;
+        if (!limitOf(el) || e.isComposing) return;
+        if (clean(el)) return;
+        /* Al borrar hasta quedar por debajo del límite, el aviso desaparece. */
+        if ("overLimit" in el.dataset && el.value.length < limitOf(el)) hide(el);
+      }, true);
     })();
   </script>
 </body>

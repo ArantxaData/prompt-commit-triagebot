@@ -149,6 +149,43 @@ def test_responsable_names_are_escaped_in_the_dropdown(client):
     assert "<b>Ana</b>" not in html and "&lt;b&gt;Ana&lt;/b&gt;" in html
 
 
+def test_form_has_hard_limits_and_a_message_slot_per_field(client):
+    html = client.get("/").text
+    for field, limit in (("f-title", 200), ("f-description", 5000), ("f-responsable", 100)):
+        assert re.search(rf'id="{field}"[^>]*maxlength="{limit}"', html)
+        assert f'data-for="{field}"' in html  # hueco donde el script escribe el aviso
+    assert "Excede el límite de" in html and "No es posible pegar" in html
+
+
+def test_newlines_count_as_one_character_like_in_the_browser(client, monkeypatch):
+    # El navegador cuenta un salto como 1 carácter pero lo envía como \r\n: sin normalizar,
+    # 2500 líneas de "x" (5000 caracteres en el campo) darían 7500 en el servidor.
+    monkeypatch.setattr(
+        "app.classifier.classify_ticket",
+        lambda title, description: {"category": "bug", "priority": "P1", "tags": []},
+    )
+    big = "xx\r\n" * 1666  # 1666 * 3 = 4998 en el campo; 6664 con CRLF
+    response = client.post(
+        "/ui/tickets",
+        data={"title": "t", "description": big, "responsable": ""},
+        headers={"HX-Request": "true"},
+    )
+    assert response.status_code == 200  # cabe: 4998 <= 5000 contando cada salto como 1
+    stored = db.list_tickets()[0]["description"]
+    assert "\r" not in stored
+    assert len(stored) == 4997  # 4998 menos el último salto, que el trim elimina
+
+
+def test_text_really_over_the_limit_is_still_rejected_by_the_server(client):
+    response = client.post(
+        "/ui/tickets",
+        data={"title": "t", "description": "x\r\n" * 2600, "responsable": ""},  # 5200 reales
+        headers={"HX-Request": "true"},
+    )
+    assert response.status_code == 422
+    assert "Máximo 5000 caracteres." in response.text
+
+
 def test_form_errors_are_linked_to_their_fields(client):
     response = client.post(
         "/ui/tickets",
