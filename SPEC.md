@@ -113,7 +113,8 @@ Errores:
 ### `GET /tickets`
 
 Lista tickets en JSON. Query params opcionales: `category`, `priority`, `status`, `responsable` (coincidencia exacta;
-un filtro vacío se ignora).
+un filtro vacío se ignora) y `sort` (`recent` por defecto: más nuevos primero; `priority`: P1 primero,
+dentro de cada prioridad los más antiguos primero y «no inferido» al final).
 
 ```text
 GET /tickets?category=bug&priority=P1&status=open
@@ -185,6 +186,14 @@ El SPEC no fija el prompt: lo decidís vosotros. Sí es obligatorio que la salid
 1. Formulario para crear ticket.
 2. Tablero de tickets.
 3. Filtros por categoría, prioridad y estado.
+
+Implementación (`app/ui.py`, `templates/`):
+
+- `GET /` devuelve la página completa; con la cabecera `HX-Request` devuelve solo la tabla.
+  Sin parámetros muestra los tickets **abiertos** ordenados por prioridad. Acepta los filtros
+  `status` (`all` = todos), `priority`, `category` y `responsable`.
+- `POST /ui/tickets` (formulario) y `PATCH /ui/tickets/{id}` (edición en la fila) devuelven HTML.
+- Los estados y prioridades se editan en la propia fila; «no inferido» no se puede asignar a mano.
 
 Recomendación:
 
