@@ -121,6 +121,9 @@ def create_ticket_form(
     description: str = Form(""),
     responsable: str = Form(""),
 ) -> HTMLResponse:
+    # Los navegadores envían los saltos de línea como \r\n (2 caracteres) aunque el campo los
+    # cuenta como 1: se normalizan para que el límite del servidor coincida con el del campo.
+    description = description.replace("\r\n", "\n").replace("\r", "\n")
     values = {"title": title, "description": description, "responsable": responsable}
     try:
         data = TicketCreate(**values)

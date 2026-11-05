@@ -16,6 +16,8 @@
       outline: 2px solid #0369a1;
       outline-offset: 2px;
     }
+    /* Campo que ha llegado a su límite de caracteres (lo marca el script del final). */
+    input[data-over-limit], textarea[data-over-limit] { border-color: #ef4444; }
     table { font-variant-numeric: tabular-nums; }
     .scroll-thin { scrollbar-width: thin; scrollbar-color: #94a3b8 transparent; }
 
@@ -105,5 +107,71 @@
       {% include "_tickets_table.html" %}
     </section>
   </main>
+
+  <script>
+    /* Límite de caracteres del formulario de alta: no se deja escribir más ni pegar un texto
+       que no quepa, y se avisa. Los listeners cuelgan de document porque HTMX vuelve a pintar
+       el formulario entero. El atributo maxlength sigue ahí como red de seguridad. */
+    (function () {
+      var timers = new WeakMap();
+
+      function limitOf(el) {
+        var inForm = el && el.closest && el.closest("#new-ticket");
+        var isField = el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA");
+        return inForm && isField && el.maxLength > 0 ? el.maxLength : 0;
+      }
+      function box(el) {
+        return document.querySelector('.limit-msg[data-for="' + el.id + '"]');
+      }
+      function hide(el) {
+        var b = box(el);
+        if (b) { b.hidden = true; b.textContent = ""; }
+        delete el.dataset.overLimit;
+      }
+      function show(el, text) {
+        var b = box(el);
+        if (!b) return;
+        b.textContent = text;
+        b.hidden = false;
+        el.dataset.overLimit = "";
+        clearTimeout(timers.get(el));
+        timers.set(el, setTimeout(function () { hide(el); }, 5000));
+      }
+      function overflows(el, incoming) {
+        var selected = Math.abs(el.selectionEnd - el.selectionStart);
+        return el.value.length - selected + incoming > limitOf(el);
+      }
+
+      /* Escribir: al llegar al límite no entra nada más. */
+      document.addEventListener("beforeinput", function (e) {
+        var el = e.target, max = limitOf(el);
+        if (!max || e.isComposing || e.inputType === "insertFromPaste") return;
+        if (e.inputType.indexOf("insert") !== 0) return;
+        var line = e.inputType === "insertLineBreak" || e.inputType === "insertParagraph";
+        var incoming = line ? 1 : (e.data || "").length;
+        if (incoming && overflows(el, incoming)) {
+          e.preventDefault();
+          show(el, "Excede el límite de " + max + " caracteres.");
+        }
+      }, true);
+
+      /* Pegar: si no cabe entero, no se pega nada (no se recorta en silencio). */
+      document.addEventListener("paste", function (e) {
+        var el = e.target, max = limitOf(el);
+        if (!max) return;
+        var text = (e.clipboardData ? e.clipboardData.getData("text") : "").replace(/\r\n?/g, "\n");
+        if (overflows(el, text.length)) {
+          e.preventDefault();
+          show(el, "No es posible pegar: el texto excede el límite de " + max + " caracteres.");
+        }
+      }, true);
+
+      /* Al borrar hasta quedar por debajo del límite, el aviso desaparece. */
+      document.addEventListener("input", function (e) {
+        var el = e.target;
+        if (el.dataset && "overLimit" in el.dataset && el.value.length < limitOf(el)) hide(el);
+      }, true);
+    })();
+  </script>
 </body>
 </html>

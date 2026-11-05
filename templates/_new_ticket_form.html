@@ -16,6 +16,7 @@
              {% if errors.title %}aria-invalid="true" aria-describedby="e-title"{% endif %}
              class="mt-1 w-full rounded-md border px-3 py-2 text-sm {{ 'border-red-500' if errors.title else 'border-slate-300' }}">
       {% if errors.title %}<p id="e-title" class="mt-1 text-sm text-red-700" role="alert">{{ errors.title }}</p>{% endif %}
+      <p class="limit-msg mt-1 text-sm text-red-700" data-for="f-title" role="alert" hidden></p>
     </div>
     <div class="md:col-span-2">
       <label for="f-description" class="block text-sm font-medium">Descripción</label>
@@ -23,6 +24,7 @@
                 {% if errors.description %}aria-invalid="true" aria-describedby="e-description"{% endif %}
                 class="mt-1 w-full rounded-md border px-3 py-2 text-sm {{ 'border-red-500' if errors.description else 'border-slate-300' }}">{{ values.description }}</textarea>
       {% if errors.description %}<p id="e-description" class="mt-1 text-sm text-red-700" role="alert">{{ errors.description }}</p>{% endif %}
+      <p class="limit-msg mt-1 text-sm text-red-700" data-for="f-description" role="alert" hidden></p>
     </div>
     <div>
       <label for="f-responsable" class="block text-sm font-medium">
@@ -33,6 +35,7 @@
              {% if errors.responsable %}aria-invalid="true" aria-describedby="e-responsable"{% endif %}
              class="mt-1 w-full rounded-md border px-3 py-2 text-sm {{ 'border-red-500' if errors.responsable else 'border-slate-300' }}">
       {% if errors.responsable %}<p id="e-responsable" class="mt-1 text-sm text-red-700" role="alert">{{ errors.responsable }}</p>{% endif %}
+      <p class="limit-msg mt-1 text-sm text-red-700" data-for="f-responsable" role="alert" hidden></p>
     </div>
     <div class="flex items-end gap-3 max-md:flex-col max-md:items-stretch">
       <button type="submit"
