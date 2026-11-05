@@ -35,7 +35,8 @@ CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets (status);
 SCHEMA = TICKETS_TABLE + INDEXES
 
 TICKET_COLUMNS = (
-    "id, title, description, category, priority, tags, status, responsable, created_at, updated_at, due_date"
+    "id, title, description, category, priority, tags, status, 
+    responsable, created_at, updated_at, due_date"
 )
 # Se crea aparte: en BDs anteriores la columna se añade por migración antes del índice.
 RESPONSABLE_INDEX = "CREATE INDEX IF NOT EXISTS idx_tickets_responsable ON tickets (responsable)"
