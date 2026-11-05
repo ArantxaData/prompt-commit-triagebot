@@ -28,13 +28,14 @@ def client():
     return TestClient(app)
 
 
-_numbers = itertools.count(1)
+_serial = itertools.count(1)
 
 
 def add(category="bug", priority="P1", status="open"):
-    # Título distinto en cada ticket: la app rechaza los tickets idénticos (duplicados).
-    title = f"ticket {next(_numbers)}"
-    ticket = db.insert_ticket(title, "d", {"category": category, "priority": priority, "tags": []})
+    # Título distinto en cada llamada: dos tickets con el mismo texto se rechazan.
+    ticket = db.insert_ticket(
+        f"t{next(_serial)}", "d", {"category": category, "priority": priority, "tags": []}
+    )
     if status != "open":
         db.update_ticket(ticket["id"], status=status)
     return ticket
