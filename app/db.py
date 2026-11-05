@@ -5,6 +5,8 @@ import os
 import sqlite3
 from datetime import UTC, datetime, timedelta
 
+from app.models import NOT_INFERRED
+
 DEFAULT_DATABASE_URL = "sqlite:///triagebot.db"
 
 TICKETS_TABLE = """
@@ -214,6 +216,37 @@ def list_responsables() -> list[str]:
         return [r["responsable"] for r in rows]
     finally:
         conn.close()
+
+
+# Desgloses de GET /tickets/stats: clave de la respuesta -> (columna, valores conocidos).
+# Los valores conocidos salen siempre (con 0 si no hay tickets) para que la forma sea estable.
+# Las columnas son constantes de este módulo, nunca entrada del usuario.
+STATS_BREAKDOWNS = {
+    "by_category": ("category", ("bug", "feature_request", "question", "urgent", NOT_INFERRED)),
+    "by_priority": ("priority", ("P1", "P2", "P3", NOT_INFERRED)),
+    "by_status": ("status", ("open", "in_progress", "resolved", "closed")),
+}
+
+
+def ticket_stats() -> dict:
+    """Recuento de todos los tickets: total y desglose por categoría, prioridad y estado.
+
+    Todo se lee dentro de una misma transacción, así que las sumas siempre cuadran con el total
+    aunque se creen tickets mientras se calcula.
+    """
+    conn = get_connection()
+    try:
+        conn.execute("BEGIN")
+        stats = {"total": conn.execute("SELECT COUNT(*) FROM tickets").fetchone()[0]}
+        for key, (column, known) in STATS_BREAKDOWNS.items():
+            counts = dict.fromkeys(known, 0)
+            query = f"SELECT {column} AS value, COUNT(*) AS n FROM tickets GROUP BY {column}"
+            for row in conn.execute(query):
+                counts[row["value"]] = row["n"]  # un valor no previsto también se cuenta
+            stats[key] = counts
+        return stats
+    finally:
+        conn.close()  # cierra la transacción de solo lectura
 
 
 def update_ticket(

@@ -112,3 +112,12 @@ class Ticket(BaseModel):
     created_at: str
     updated_at: str
     due_date: str | None = None
+
+
+class TicketStats(BaseModel):
+    """Respuesta de GET /tickets/stats: el total y el recuento por cada valor de cada campo."""
+
+    total: int
+    by_category: dict[str, int]
+    by_priority: dict[str, int]
+    by_status: dict[str, int]
