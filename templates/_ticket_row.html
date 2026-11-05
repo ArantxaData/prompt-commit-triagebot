@@ -43,6 +43,16 @@
       <option value="{{ value }}" {{ "selected" if t.status == value }}>{{ label }}</option>
       {% endfor %}
     </select>
+    {% if error %}<p class="mt-1 max-w-[12rem] text-xs text-red-600" role="alert">{{ error }}</p>{% endif %}
+  </td>
+  <td class="px-3 py-3 whitespace-nowrap text-sm">
+    {% if t.due_date %}
+    {% set overdue = t.due_date < today and t.status in ("open", "in_progress") %}
+    <span class="{{ 'font-semibold text-red-600' if overdue else 'text-slate-600' }}"
+          {% if overdue %}title="Vencido"{% endif %}>{{ t.due_date }}{% if overdue %} ⚠{% endif %}</span>
+    {% else %}
+    <span class="text-slate-400">—</span>
+    {% endif %}
   </td>
   <td class="px-3 py-3 whitespace-nowrap text-sm text-slate-500">{{ t.created_at[:16] | replace("T", " ") }}</td>
 </tr>

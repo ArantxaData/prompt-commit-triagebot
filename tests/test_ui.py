@@ -212,10 +212,61 @@ def test_row_edit_ignores_not_inferred_and_rejects_bad_values(client):
     ticket = add("raro", priority="no inferido")
     url = f"/ui/tickets/{ticket['id']}"
 
-    ok = client.patch(url, data={"status": "closed", "priority": "no inferido"}, headers=HX)
+    ok = client.patch(url, data={"status": "resolved", "priority": "no inferido"}, headers=HX)
     assert ok.status_code == 200
     stored = db.get_ticket(ticket["id"])
-    assert (stored["status"], stored["priority"]) == ("closed", "no inferido")
+    assert (stored["status"], stored["priority"]) == ("resolved", "no inferido")
 
     assert client.patch(url, data={"status": "done"}, headers=HX).status_code == 422
     assert client.patch("/ui/tickets/9999", data={"status": "open"}, headers=HX).status_code == 404
+
+
+# ---------- estado "resolved", transiciones y fecha límite ----------
+
+
+def test_resolved_status_is_available_in_filter_and_row(client):
+    add("hecho", status="resolved")
+    html = client.get("/", params={"status": "resolved"}).text
+    assert titles(html) == ["hecho"]
+    assert re.search(r'<option value="resolved"\s+selected', html)  # filtro y desplegable
+
+
+def test_invalid_transition_returns_row_unchanged_with_message(client):
+    ticket = add("abierto")  # open -> closed no está permitido
+    response = client.patch(f"/ui/tickets/{ticket['id']}", data={"status": "closed"}, headers=HX)
+    assert response.status_code == 409
+    assert "Transición no permitida: open -&gt; closed" in response.text
+    assert f'id="ticket-{ticket["id"]}"' in response.text
+    assert db.get_ticket(ticket["id"])["status"] == "open"  # nada cambia
+
+
+def test_row_edit_follows_the_same_rules_as_the_api(client):
+    ticket = add("flujo")
+    url = f"/ui/tickets/{ticket['id']}"
+    for new_status in ("in_progress", "resolved", "closed"):
+        assert client.patch(url, data={"status": new_status}, headers=HX).status_code == 200
+    assert client.patch(url, data={"status": "resolved"}, headers=HX).status_code == 409
+
+
+def test_due_date_column_and_overdue_marker(client):
+    from datetime import UTC, datetime, timedelta
+
+    today = datetime.now(UTC).date()
+    late = add("tarde", priority="P1")
+    on_time = add("a tiempo", priority="P1")
+    done = add("hecho", priority="P1", status="resolved")
+    with db.get_connection() as conn:
+        conn.execute(
+            "UPDATE tickets SET due_date = ? WHERE id IN (?, ?)",
+            ((today - timedelta(days=2)).isoformat(), late["id"], done["id"]),
+        )
+
+    html = client.get("/", params={"status": "all"}).text
+    assert "Fecha límite" in html
+    assert on_time["due_date"] == today.isoformat()
+    late_row = re.search(rf'<tr id="ticket-{late["id"]}".*?</tr>', html, flags=re.S).group(0)
+    on_time_row = re.search(rf'<tr id="ticket-{on_time["id"]}".*?</tr>', html, flags=re.S).group(0)
+    done_row = re.search(rf'<tr id="ticket-{done["id"]}".*?</tr>', html, flags=re.S).group(0)
+    assert "Vencido" in late_row  # abierto y pasado de fecha
+    assert "Vencido" not in on_time_row  # vence hoy: aún a tiempo
+    assert "Vencido" not in done_row  # resuelto: ya no cuenta como vencido

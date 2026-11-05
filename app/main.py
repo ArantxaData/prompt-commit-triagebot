@@ -4,7 +4,12 @@ from fastapi import FastAPI, HTTPException, status
 
 from app import db, ui
 from app.models import Ticket, TicketCreate, TicketUpdate
-from app.service import create_classified_ticket
+from app.service import (
+    InvalidTransition,
+    TicketNotFound,
+    change_ticket,
+    create_classified_ticket,
+)
 
 app = FastAPI(title="TriageBot")
 app.include_router(ui.router)
@@ -39,7 +44,9 @@ def list_tickets(
 @app.patch("/tickets/{ticket_id}", response_model=Ticket)
 def update_ticket(ticket_id: int, changes: TicketUpdate) -> dict:
     # status y priority ya vienen validados contra el enum (si no, 422).
-    ticket = db.update_ticket(ticket_id, status=changes.status, priority=changes.priority)
-    if ticket is None:
-        raise HTTPException(status_code=404, detail="Ticket no encontrado")
-    return ticket
+    try:
+        return change_ticket(ticket_id, status=changes.status, priority=changes.priority)
+    except TicketNotFound:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado") from None
+    except InvalidTransition as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from None

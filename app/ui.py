@@ -1,5 +1,6 @@
 """Interfaz web (HTML + HTMX). Devuelve páginas y fragmentos, nunca JSON."""
 
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import APIRouter, Form, HTTPException, Request
@@ -9,14 +10,24 @@ from pydantic import ValidationError
 
 from app import db
 from app.models import NOT_INFERRED, TicketCreate, TicketUpdate
-from app.service import create_classified_ticket
+from app.service import (
+    InvalidTransition,
+    TicketNotFound,
+    change_ticket,
+    create_classified_ticket,
+)
 
 router = APIRouter()
 
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
-STATUSES = [("open", "Abierto"), ("in_progress", "En curso"), ("closed", "Cerrado")]
+STATUSES = [
+    ("open", "Abierto"),
+    ("in_progress", "En curso"),
+    ("resolved", "Resuelto"),
+    ("closed", "Cerrado"),
+]
 PRIORITIES = [("P1", "P1 · Alta"), ("P2", "P2 · Media"), ("P3", "P3 · Baja")]
 CATEGORIES = [
     ("bug", "Bug"),
@@ -56,6 +67,7 @@ def _tickets(filters: dict) -> list[dict]:
 
 
 def _html(request: Request, name: str, context: dict, status_code: int = 200) -> HTMLResponse:
+    context = {"today": datetime.now(UTC).date().isoformat(), **context}  # para marcar vencidos
     response = templates.TemplateResponse(request, name, context, status_code=status_code)
     response.headers["Vary"] = "HX-Request"  # misma URL: página completa o fragmento
     return response
@@ -127,7 +139,12 @@ def update_ticket_row(
         changes = TicketUpdate(status=status or None, priority=priority)
     except ValidationError as exc:
         raise HTTPException(status_code=422, detail="Valor no permitido") from exc
-    ticket = db.update_ticket(ticket_id, status=changes.status, priority=changes.priority)
-    if ticket is None:
-        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+    try:
+        ticket = change_ticket(ticket_id, status=changes.status, priority=changes.priority)
+    except TicketNotFound:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado") from None
+    except InvalidTransition as exc:
+        # Se repinta la fila sin cambios (el desplegable vuelve a su valor) con el motivo.
+        current = db.get_ticket(ticket_id)
+        return _html(request, "_ticket_row.html", {"t": current, "error": str(exc)}, 409)
     return _html(request, "_ticket_row.html", {"t": ticket})
