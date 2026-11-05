@@ -131,6 +131,33 @@ def index(
     )
 
 
+# Páginas de estadísticas: clave de db.ticket_stats() -> (título del grupo, textos en español).
+STAT_GROUPS = (
+    ("by_category", "Categoría", {**dict(CATEGORIES), NOT_INFERRED: "no inferido"}),
+    ("by_priority", "Prioridad", {**dict(PRIORITIES), NOT_INFERRED: "no inferido"}),
+    ("by_status", "Estado", dict(STATUSES)),
+)
+
+
+def _stats_groups(stats: dict) -> list[dict]:
+    """Los desgloses de db.ticket_stats() listos para pintar: título y filas (texto, recuento)."""
+    return [
+        {
+            "title": title,
+            "rows": [(labels.get(value, value), count) for value, count in stats[key].items()],
+        }
+        for key, title, labels in STAT_GROUPS
+    ]
+
+
+@router.get("/estadisticas", response_class=HTMLResponse)
+def stats_page(request: Request) -> HTMLResponse:
+    """Tabla resumen: total de tickets y recuento por categoría, prioridad y estado."""
+    stats = db.ticket_stats()
+    context = {"total": stats["total"], "groups": _stats_groups(stats)}
+    return _html(request, "estadisticas.html", context)
+
+
 @router.post("/ui/tickets", response_class=HTMLResponse)
 def create_ticket_form(
     request: Request,
