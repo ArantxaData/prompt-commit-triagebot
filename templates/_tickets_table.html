@@ -1,25 +1,33 @@
 {# Fragmento que HTMX refresca al cambiar un filtro o crear un ticket. #}
-<p class="mb-2 text-sm text-slate-500" aria-live="polite">
+{% set ns = namespace(overdue=0) %}
+{% for t in tickets %}
+  {% if t.due_date and t.due_date < today and t.status in ("open", "in_progress") %}
+    {% set ns.overdue = ns.overdue + 1 %}
+  {% endif %}
+{% endfor %}
+<p class="mb-2 text-sm text-slate-600" aria-live="polite">
   {{ tickets | length }} {{ "ticket" if tickets | length == 1 else "tickets" }}
+  {%- if ns.overdue %}
+  · <span class="font-semibold text-red-700">{{ ns.overdue }} {{ "vencido" if ns.overdue == 1 else "vencidos" }}</span>
+  {%- endif %}
 </p>
 
 {% if tickets %}
-<div class="overflow-x-auto rounded-lg shadow-sm ring-1 ring-slate-200">
-  <table class="min-w-full divide-y divide-slate-200 bg-white">
-    <thead class="bg-slate-100">
-      <tr>
-        <th class="px-3 py-2 text-left text-sm font-semibold">ID</th>
-        <th class="px-3 py-2 text-left text-sm font-semibold">Título</th>
-        <th class="px-3 py-2 text-left text-sm font-semibold">Categoría</th>
-        <th class="px-3 py-2 text-left text-sm font-semibold">Prioridad</th>
-        <th class="px-3 py-2 text-left text-sm font-semibold">Tags</th>
-        <th class="px-3 py-2 text-left text-sm font-semibold">Responsable</th>
-        <th class="px-3 py-2 text-left text-sm font-semibold">Estado</th>
-        <th class="px-3 py-2 text-left text-sm font-semibold">Fecha límite</th>
-        <th class="px-3 py-2 text-left text-sm font-semibold">Creado</th>
+<div class="scroll-thin overflow-x-auto rounded-lg bg-white shadow-sm ring-1 ring-slate-200 max-md:overflow-visible max-md:bg-transparent max-md:shadow-none max-md:ring-0"
+     role="region" aria-label="Listado de tickets" tabindex="0">
+  <table class="min-w-full text-left max-md:block">
+    <thead class="bg-slate-50 max-md:hidden">
+      <tr class="border-b border-slate-200">
+        <th scope="col" class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Título</th>
+        <th scope="col" class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Categoría</th>
+        <th scope="col" class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Prioridad</th>
+        <th scope="col" class="whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Fecha límite</th>
+        <th scope="col" class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Estado</th>
+        <th scope="col" class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Responsable</th>
+        <th scope="col" class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Creado</th>
       </tr>
     </thead>
-    <tbody id="tickets-table-body" class="divide-y divide-slate-100">
+    <tbody id="tickets-table-body" class="divide-y divide-slate-100 max-md:block max-md:space-y-3 max-md:divide-y-0">
       {% for t in tickets %}
       {% include "_ticket_row.html" %}
       {% endfor %}
@@ -27,7 +35,7 @@
   </table>
 </div>
 {% else %}
-<div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">
+<div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-slate-600">
   No hay tickets con estos filtros.
   <a href="/" class="ml-1 text-sky-700 underline">Limpiar filtros</a>
 </div>

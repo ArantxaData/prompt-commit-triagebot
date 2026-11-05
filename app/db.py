@@ -202,6 +202,20 @@ def list_tickets(
         conn.close()
 
 
+def list_responsables() -> list[str]:
+    """Responsables distintos que ya constan en algún ticket, en orden alfabético."""
+    conn = get_connection()
+    try:
+        rows = conn.execute(
+            "SELECT DISTINCT responsable FROM tickets"
+            " WHERE responsable IS NOT NULL AND responsable != ''"
+            " ORDER BY responsable COLLATE NOCASE"
+        )
+        return [r["responsable"] for r in rows]
+    finally:
+        conn.close()
+
+
 def update_ticket(
     ticket_id: int, status: str | None = None, priority: str | None = None
 ) -> dict | None:

@@ -1,23 +1,36 @@
 {% from "_macros.html" import priority_classes, category_classes %}
-{# Una fila editable. Al cambiar estado o prioridad se guarda y la fila se vuelve a pintar. #}
-<tr id="ticket-{{ t.id }}" class="align-top hover:bg-slate-50"
+{# Una fila editable. Al cambiar estado o prioridad se guarda y la fila se vuelve a pintar.
+   En móvil cada fila se apila como una tarjeta (el CSS de index.html pinta las etiquetas). #}
+<tr id="ticket-{{ t.id }}"
+    class="align-top hover:bg-slate-50 focus-within:bg-slate-50 max-md:grid max-md:grid-cols-2 max-md:gap-x-3 max-md:gap-y-3 max-md:rounded-lg max-md:bg-white max-md:p-3 max-md:ring-1 max-md:ring-slate-200"
     hx-patch="/ui/tickets/{{ t.id }}" hx-trigger="change" hx-include="this"
     hx-target="this" hx-swap="outerHTML settle:800ms">
-  <td class="px-3 py-3 text-sm text-slate-500">#{{ t.id }}</td>
-  <td class="px-3 py-3 max-w-md">
-    <details>
-      <summary class="ticket-title cursor-pointer text-sm font-medium text-slate-900">{{ t.title }}</summary>
-      <p class="mt-2 whitespace-pre-line text-sm text-slate-600">{{ t.description }}</p>
-    </details>
+  <td class="px-3 py-3 md:max-w-md max-md:col-span-2 max-md:p-0">
+    <div class="flex gap-2">
+      <span class="pt-0.5 text-xs text-slate-500">#{{ t.id }}</span>
+      <div class="min-w-0">
+        <details>
+          <summary class="ticket-title cursor-pointer text-sm font-medium text-slate-900">{{ t.title }}</summary>
+          <p class="mt-2 whitespace-pre-line text-sm text-slate-700">{{ t.description }}</p>
+        </details>
+        {% if t.tags %}
+        <div class="mt-1.5 flex flex-wrap gap-1">
+          {% for tag in t.tags %}
+          <span class="inline-block rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">{{ tag }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
   </td>
-  <td class="px-3 py-3">
+  <td class="px-3 py-3 max-md:p-0" data-label="Categoría">
     <span class="inline-block rounded-full px-2 py-0.5 text-xs font-medium ring-1 {{ category_classes(t.category) }}">
       {% if t.category == NOT_INFERRED %}no inferido{% else %}{{ CATEGORY_LABELS[t.category] }}{% endif %}
     </span>
   </td>
-  <td class="px-3 py-3">
+  <td class="px-3 py-3 max-md:p-0" data-label="Prioridad">
     <select name="priority" aria-label="Prioridad del ticket {{ t.id }}"
-            class="rounded-md px-2 py-1 text-sm font-semibold ring-1 {{ priority_classes(t.priority) }}">
+            class="rounded-md px-2 py-1 text-sm font-semibold ring-1 max-md:w-full max-md:py-2 {{ priority_classes(t.priority) }}">
       {% if t.priority == NOT_INFERRED %}
       <option value="{{ NOT_INFERRED }}" selected>no inferido</option>
       {% endif %}
@@ -26,33 +39,28 @@
       {% endfor %}
     </select>
   </td>
-  <td class="px-3 py-3">
-    {% for tag in t.tags %}
-    <span class="mr-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">{{ tag }}</span>
+  <td class="whitespace-nowrap px-3 py-3 text-sm max-md:p-0" data-label="Fecha límite">
+    {% if t.due_date %}
+    {% set overdue = t.due_date < today and t.status in ("open", "in_progress") %}
+    <span class="{{ 'font-semibold text-red-700' if overdue else 'text-slate-700' }}">{{ t.due_date }}</span>
+    {% if overdue %}<span class="ml-1.5 rounded bg-red-50 px-1.5 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-red-200">Vencido</span>{% endif %}
     {% else %}
-    <span class="text-slate-400">—</span>
-    {% endfor %}
+    <span class="text-slate-500" aria-hidden="true">—</span><span class="sr-only">Sin fecha límite</span>
+    {% endif %}
   </td>
-  <td class="px-3 py-3 text-sm {{ 'text-slate-800' if t.responsable else 'text-slate-400' }}">
-    {{ t.responsable or "—" }}
-  </td>
-  <td class="px-3 py-3">
+  <td class="px-3 py-3 max-md:p-0" data-label="Estado">
+    {# Solo se ofrecen el estado actual y las transiciones permitidas: no se propone lo que daría 409. #}
     <select name="status" aria-label="Estado del ticket {{ t.id }}"
-            class="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm">
-      {% for value, label in STATUSES %}
+            class="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm max-md:w-full max-md:py-2">
+      {% for value, label in STATUSES if value == t.status or value in TRANSITIONS[t.status] %}
       <option value="{{ value }}" {{ "selected" if t.status == value }}>{{ label }}</option>
       {% endfor %}
     </select>
-    {% if error %}<p class="mt-1 max-w-[12rem] text-xs text-red-600" role="alert">{{ error }}</p>{% endif %}
+    {% if error %}<p class="mt-1 max-w-[12rem] text-xs text-red-700 max-md:max-w-none" role="alert">{{ error }}</p>{% endif %}
   </td>
-  <td class="px-3 py-3 whitespace-nowrap text-sm">
-    {% if t.due_date %}
-    {% set overdue = t.due_date < today and t.status in ("open", "in_progress") %}
-    <span class="{{ 'font-semibold text-red-600' if overdue else 'text-slate-600' }}"
-          {% if overdue %}title="Vencido"{% endif %}>{{ t.due_date }}{% if overdue %} ⚠{% endif %}</span>
-    {% else %}
-    <span class="text-slate-400">—</span>
-    {% endif %}
+  <td class="px-3 py-3 text-sm max-md:p-0" data-label="Responsable">
+    {% if t.responsable %}<span class="text-slate-800">{{ t.responsable }}</span>
+    {% else %}<span class="text-slate-500" aria-hidden="true">—</span><span class="sr-only">Sin responsable</span>{% endif %}
   </td>
-  <td class="px-3 py-3 whitespace-nowrap text-sm text-slate-500">{{ t.created_at[:16] | replace("T", " ") }}</td>
+  <td class="whitespace-nowrap px-3 py-3 text-sm text-slate-500 max-md:hidden">{{ t.created_at[:16] | replace("T", " ") }}</td>
 </tr>

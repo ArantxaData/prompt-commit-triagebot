@@ -9,33 +9,66 @@
   {# htmx descarta por defecto las respuestas 4xx; los 422 del formulario sí se pintan. #}
   <meta name="htmx-config" content='{"responseHandling":[{"code":"204","swap":false},{"code":"[23]..","swap":true},{"code":"409","swap":true},{"code":"422","swap":true},{"code":"[45]..","swap":false,"error":true},{"code":"...","swap":true}]}'>
   <style>
+    /* Superficies del navegador tematizadas con la paleta (sky/slate). */
+    ::selection { background: #bae6fd; color: #0c4a6e; }
+    input, textarea, select { caret-color: #0369a1; accent-color: #0369a1; }
+    :where(a, button, input, select, textarea, summary, [tabindex="0"]):focus-visible {
+      outline: 2px solid #0369a1;
+      outline-offset: 2px;
+    }
+    table { font-variant-numeric: tabular-nums; }
+    .scroll-thin { scrollbar-width: thin; scrollbar-color: #94a3b8 transparent; }
+
+    /* Estado de carga: la lista se atenúa mientras HTMX pide el fragmento. */
+    #tickets { transition: opacity 0.15s ease; }
+    #tickets.htmx-request { opacity: 0.55; }
+
     /* Destello verde breve en la fila recién guardada */
     tr.htmx-added { background-color: #dcfce7; }
     tr { transition: background-color 0.8s ease; }
+
+    /* Móvil: cada fila es una tarjeta y cada celda lleva su etiqueta. */
+    @media (max-width: 767px) {
+      td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #475569;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
-  <main class="mx-auto max-w-6xl p-6">
-    <h1 class="text-3xl font-bold">TriageBot</h1>
-    <p class="mt-2 text-slate-600">Tablero de incidencias con clasificación automática por IA.</p>
+<body class="bg-slate-50 text-slate-900 antialiased">
+  <main class="mx-auto max-w-7xl px-4 py-6 md:px-6">
+    <header>
+      <h1 class="text-3xl font-bold tracking-tight">TriageBot</h1>
+      <p class="mt-1 text-slate-600">Tablero de incidencias con clasificación automática por IA.</p>
+    </header>
 
     {% include "_new_ticket_form.html" %}
 
-    <form id="filters" class="mt-6 flex flex-wrap items-end gap-4"
+    <form id="filters" role="search" aria-label="Filtros del tablero"
+          class="mt-6 flex flex-wrap items-end gap-x-4 gap-y-3"
           action="/" method="get"
-          hx-get="/" hx-target="#tickets" hx-trigger="change" hx-push-url="true">
-      <div>
-        <label for="f-status" class="block text-xs font-semibold uppercase text-slate-500">Estado</label>
-        <select id="f-status" name="status" class="mt-1 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm">
+          hx-get="/" hx-target="#tickets" hx-trigger="change" hx-push-url="true" hx-indicator="#tickets">
+      <div class="max-md:w-[calc(50%-0.5rem)]">
+        <label for="f-status" class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Estado</label>
+        <select id="f-status" name="status" class="mt-1 w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm max-md:py-2.5">
+          <option value="all" {{ "selected" if filters.status == "all" }}>Todos</option>
           {% for value, label in STATUSES %}
           <option value="{{ value }}" {{ "selected" if filters.status == value }}>{{ label }}</option>
           {% endfor %}
-          <option value="all" {{ "selected" if filters.status == "all" }}>Todos</option>
         </select>
       </div>
-      <div>
-        <label for="f-priority" class="block text-xs font-semibold uppercase text-slate-500">Prioridad</label>
-        <select id="f-priority" name="priority" class="mt-1 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm">
+      <div class="max-md:w-[calc(50%-0.5rem)]">
+        <label for="f-priority" class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Prioridad</label>
+        <select id="f-priority" name="priority" class="mt-1 w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm max-md:py-2.5">
           <option value="">Todas</option>
           {% for value, label in PRIORITIES %}
           <option value="{{ value }}" {{ "selected" if filters.priority == value }}>{{ label }}</option>
@@ -43,9 +76,9 @@
           <option value="{{ NOT_INFERRED }}" {{ "selected" if filters.priority == NOT_INFERRED }}>no inferido</option>
         </select>
       </div>
-      <div>
-        <label for="f-category" class="block text-xs font-semibold uppercase text-slate-500">Categoría</label>
-        <select id="f-category" name="category" class="mt-1 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm">
+      <div class="max-md:w-[calc(50%-0.5rem)]">
+        <label for="f-category" class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Categoría</label>
+        <select id="f-category" name="category" class="mt-1 w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm max-md:py-2.5">
           <option value="">Todas</option>
           {% for value, label in CATEGORIES %}
           <option value="{{ value }}" {{ "selected" if filters.category == value }}>{{ label }}</option>
@@ -53,15 +86,18 @@
           <option value="{{ NOT_INFERRED }}" {{ "selected" if filters.category == NOT_INFERRED }}>no inferido</option>
         </select>
       </div>
-      <div>
-        <label for="f-resp-filter" class="block text-xs font-semibold uppercase text-slate-500">Responsable</label>
-        <input id="f-resp-filter" name="responsable" type="search" value="{{ filters.responsable }}"
-               placeholder="Nombre exacto" autocomplete="off"
-               hx-get="/" hx-trigger="keyup changed delay:400ms" hx-include="#filters"
-               hx-target="#tickets" hx-push-url="true"
-               class="mt-1 rounded-md border border-slate-300 px-2 py-1.5 text-sm">
+      <div class="max-md:w-[calc(50%-0.5rem)]">
+        <label for="f-resp-filter" class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Responsable</label>
+        <select id="f-resp-filter" name="responsable" class="mt-1 w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm max-md:py-2.5">
+          <option value="">Todos</option>
+          {% for name in responsables %}
+          <option value="{{ name }}" {{ "selected" if filters.responsable == name }}>{{ name }}</option>
+          {% endfor %}
+        </select>
       </div>
-      <a href="/" class="pb-2 text-sm text-sky-700 underline">Limpiar filtros</a>
+      {% if filters.status != "open" or filters.priority or filters.category or filters.responsable %}
+      <a href="/" class="py-2 text-sm text-sky-700 underline">Limpiar filtros</a>
+      {% endif %}
     </form>
 
     <section id="tickets" class="mt-4"

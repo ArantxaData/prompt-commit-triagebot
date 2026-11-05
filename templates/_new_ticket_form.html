@@ -1,39 +1,45 @@
 {# Formulario de alta. Se vuelve a pintar entero: vacío y cerrado tras crear, abierto con errores si falla. #}
 {% set values = form["values"] %}  {# form.values sería el método dict.values #}
 {% set errors = form["errors"] %}
-<details id="new-ticket" class="mt-6 rounded-lg bg-white p-4 shadow-sm ring-1 ring-slate-200" {{ "open" if errors }}>
-  <summary class="cursor-pointer text-sm font-semibold text-sky-800">+ Nuevo ticket</summary>
-  <form class="mt-4 grid gap-4 md:grid-cols-2"
+<details id="new-ticket" class="group mt-6" {{ "open" if errors }}>
+  <summary class="inline-flex cursor-pointer list-none items-center gap-2 rounded-md bg-sky-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-800 max-md:w-full max-md:justify-center max-md:py-2.5 [&::-webkit-details-marker]:hidden">
+    <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>
+    Nuevo ticket
+  </summary>
+  <form class="mt-3 grid gap-4 rounded-lg bg-white p-4 shadow-sm ring-1 ring-slate-200 md:grid-cols-2"
         hx-post="/ui/tickets" hx-target="#new-ticket" hx-swap="outerHTML"
         hx-disabled-elt="find button" hx-indicator="#classifying">
     <div class="md:col-span-2">
       <label for="f-title" class="block text-sm font-medium">Título</label>
-      <input id="f-title" name="title" type="text" maxlength="200" required
+      <input id="f-title" name="title" type="text" maxlength="200" required autocomplete="off"
              value="{{ values.title }}"
-             class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
-      {% if errors.title %}<p class="mt-1 text-sm text-red-600">{{ errors.title }}</p>{% endif %}
+             {% if errors.title %}aria-invalid="true" aria-describedby="e-title"{% endif %}
+             class="mt-1 w-full rounded-md border px-3 py-2 text-sm {{ 'border-red-500' if errors.title else 'border-slate-300' }}">
+      {% if errors.title %}<p id="e-title" class="mt-1 text-sm text-red-700" role="alert">{{ errors.title }}</p>{% endif %}
     </div>
     <div class="md:col-span-2">
       <label for="f-description" class="block text-sm font-medium">Descripción</label>
       <textarea id="f-description" name="description" rows="4" maxlength="5000" required
-                class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm">{{ values.description }}</textarea>
-      {% if errors.description %}<p class="mt-1 text-sm text-red-600">{{ errors.description }}</p>{% endif %}
+                {% if errors.description %}aria-invalid="true" aria-describedby="e-description"{% endif %}
+                class="mt-1 w-full rounded-md border px-3 py-2 text-sm {{ 'border-red-500' if errors.description else 'border-slate-300' }}">{{ values.description }}</textarea>
+      {% if errors.description %}<p id="e-description" class="mt-1 text-sm text-red-700" role="alert">{{ errors.description }}</p>{% endif %}
     </div>
     <div>
       <label for="f-responsable" class="block text-sm font-medium">
-        Responsable <span class="font-normal text-slate-400">(opcional)</span>
+        Responsable <span class="font-normal text-slate-500">(opcional)</span>
       </label>
-      <input id="f-responsable" name="responsable" type="text" maxlength="100"
+      <input id="f-responsable" name="responsable" type="text" maxlength="100" autocomplete="off"
              value="{{ values.responsable }}"
-             class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
-      {% if errors.responsable %}<p class="mt-1 text-sm text-red-600">{{ errors.responsable }}</p>{% endif %}
+             {% if errors.responsable %}aria-invalid="true" aria-describedby="e-responsable"{% endif %}
+             class="mt-1 w-full rounded-md border px-3 py-2 text-sm {{ 'border-red-500' if errors.responsable else 'border-slate-300' }}">
+      {% if errors.responsable %}<p id="e-responsable" class="mt-1 text-sm text-red-700" role="alert">{{ errors.responsable }}</p>{% endif %}
     </div>
-    <div class="flex items-end gap-3">
+    <div class="flex items-end gap-3 max-md:flex-col max-md:items-stretch">
       <button type="submit"
-              class="rounded-md bg-sky-700 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-800 disabled:opacity-50">
+              class="rounded-md bg-sky-700 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-800 disabled:cursor-not-allowed disabled:opacity-50 max-md:py-2.5">
         Crear y clasificar
       </button>
-      <span id="classifying" class="htmx-indicator text-sm text-slate-500">Clasificando…</span>
+      <span id="classifying" class="htmx-indicator text-sm text-slate-600" role="status">Clasificando…</span>
     </div>
   </form>
 </details>
