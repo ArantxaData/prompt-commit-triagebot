@@ -9,7 +9,13 @@ from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
 
 from app import db
-from app.models import ALLOWED_TRANSITIONS, NOT_INFERRED, TicketCreate, TicketUpdate
+from app.models import (
+    ALLOWED_TRANSITIONS,
+    LATIN_CLASS,
+    NOT_INFERRED,
+    TicketCreate,
+    TicketUpdate,
+)
 from app.service import (
     InvalidTransition,
     TicketNotFound,
@@ -42,6 +48,7 @@ templates.env.globals.update(
     NOT_INFERRED=NOT_INFERRED,
     CATEGORY_LABELS=dict(CATEGORIES),
     TRANSITIONS=ALLOWED_TRANSITIONS,  # el desplegable de estado solo ofrece lo permitido
+    LATIN_CLASS=LATIN_CLASS,  # la misma lista blanca de caracteres que valida el servidor
 )
 
 
@@ -83,6 +90,8 @@ def _error_message(error: dict) -> str:
         return "Este campo es obligatorio."
     if error["type"] == "string_too_long":
         return f"Máximo {error['ctx']['max_length']} caracteres."
+    if error["type"] == "value_error":  # validadores propios (p. ej. solo caracteres latinos)
+        return str(error["ctx"]["error"])
     return "Valor no válido."
 
 
