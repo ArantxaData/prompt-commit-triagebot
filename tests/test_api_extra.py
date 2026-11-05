@@ -7,7 +7,7 @@ from app.main import app
 
 TICKET_FIELDS = {
     "id", "title", "description", "category", "priority",
-    "tags", "status", "created_at", "updated_at",
+    "tags", "responsable", "status", "created_at", "updated_at",
 }  # fmt: skip
 
 
@@ -126,3 +126,28 @@ def test_patch_with_unknown_category_or_empty_values(client, monkeypatch):
     for blank in ({"status": ""}, {"priority": ""}):
         assert client.patch(url, json=blank).status_code == 422
     assert client.get("/tickets").json() == [original]
+
+
+def test_responsable_is_saved_trimmed_and_filterable(client, monkeypatch):
+    fake_classifier(monkeypatch)
+    ana = create(client, title="de Ana", responsable="  Ana  ")
+    luis = create(client, title="de Luis", responsable="Luis")
+    sin = create(client, title="sin responsable")
+    blank = create(client, title="en blanco", responsable="   ")
+
+    assert ana["responsable"] == "Ana"  # recortado
+    assert sin["responsable"] is None
+    assert blank["responsable"] is None  # solo espacios = sin responsable
+
+    def ids(**params):
+        return {t["id"] for t in client.get("/tickets", params=params).json()}
+
+    assert ids(responsable="Ana") == {ana["id"]}
+    assert ids(responsable="Luis", category="bug", status="open") == {luis["id"]}
+    assert ids(responsable="Pedro") == set()
+    assert len(ids(responsable="")) == 4  # filtro vacío se ignora
+
+    too_long = client.post(
+        "/tickets", json={"title": "t", "description": "d", "responsable": "x" * 101}
+    )
+    assert too_long.status_code == 422

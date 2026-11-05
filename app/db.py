@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS tickets (
     ),
     priority    TEXT NOT NULL CHECK (priority IN ('P1','P2','P3','no inferido')),
     tags        TEXT NOT NULL DEFAULT '[]',
+    responsable TEXT,
     status      TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','in_progress','closed')),
     created_at  TEXT NOT NULL,
     updated_at  TEXT NOT NULL
@@ -25,6 +26,9 @@ CREATE INDEX IF NOT EXISTS idx_tickets_category ON tickets (category);
 CREATE INDEX IF NOT EXISTS idx_tickets_priority ON tickets (priority);
 CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets (status);
 """
+
+# Se crea aparte: en BDs anteriores la columna se añade por migración antes del índice.
+RESPONSABLE_INDEX = "CREATE INDEX IF NOT EXISTS idx_tickets_responsable ON tickets (responsable)"
 
 
 def _now() -> str:
@@ -41,6 +45,10 @@ def get_connection() -> sqlite3.Connection:
     conn = sqlite3.connect(_db_path())
     conn.row_factory = sqlite3.Row
     conn.executescript(SCHEMA)  # idempotente
+    columns = {r["name"] for r in conn.execute("PRAGMA table_info(tickets)")}
+    if "responsable" not in columns:  # BD creada antes de existir el campo
+        conn.execute("ALTER TABLE tickets ADD COLUMN responsable TEXT")
+    conn.execute(RESPONSABLE_INDEX)
     return conn
 
 
@@ -59,6 +67,7 @@ def insert_ticket(
     description: str,
     classification: dict,
     created_at: str | None = None,
+    responsable: str | None = None,
 ) -> dict:
     """Guarda título, descripción y fecha tal cual; el resto viene del clasificador."""
     now = _now()
@@ -67,13 +76,15 @@ def insert_ticket(
         with conn:
             cur = conn.execute(
                 "INSERT INTO tickets (title, description, category, priority, tags,"
-                " status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'open', ?, ?)",
+                " responsable, status, created_at, updated_at)"
+                " VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?)",
                 (
                     title,
                     description,
                     classification["category"],
                     classification["priority"],
                     json.dumps(classification["tags"], ensure_ascii=False),
+                    responsable,
                     created_at or now,
                     now,
                 ),
@@ -98,8 +109,14 @@ def list_tickets(
     category: str | None = None,
     priority: str | None = None,
     status: str | None = None,
+    responsable: str | None = None,
 ) -> list[dict]:
-    filters = {"category": category, "priority": priority, "status": status}
+    filters = {
+        "category": category,
+        "priority": priority,
+        "status": status,
+        "responsable": responsable,
+    }
     active = {k: v for k, v in filters.items() if v}
     where = " AND ".join(f"{k} = ?" for k in active)  # claves fijas, valores parametrizados
     query = "SELECT * FROM tickets"

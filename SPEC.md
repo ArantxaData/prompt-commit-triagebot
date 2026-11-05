@@ -24,6 +24,7 @@ Campos mínimos:
 | `category` | str | `bug`, `feature_request`, `question`, `urgent` |
 | `priority` | str | `P1`, `P2`, `P3` |
 | `tags` | list[str] | Lista, puede estar vacía |
+| `responsable` | str \| null | Opcional, hasta 100 caracteres tras trim; vacío o solo espacios = `null`. Se indica al crear el ticket y no cambia después |
 | `status` | str | `open`, `in_progress`, `closed` |
 | `created_at` | datetime | UTC, generado en servidor |
 | `updated_at` | datetime | UTC, actualizado en cambios relevantes |
@@ -69,7 +70,7 @@ El stack cerrado no está aquí: está en `BRIEF.md`, sección «Restricciones t
 |---|---|---|
 | `GET /health` | `200 {"status": "ok"}` | — |
 | `POST /tickets` | `201` con el ticket ya clasificado | `422` si título o descripción vacíos o demasiado largos |
-| `GET /tickets` | `200` lista, filtrable por `category`, `priority` y `status` | — |
+| `GET /tickets` | `200` lista, filtrable por `category`, `priority`, `status` y `responsable` | — |
 | `PATCH /tickets/{ticket_id}` | `200` ticket actualizado | `404` si no existe · `422` si el valor no está en el enum |
 | `GET /` | `200` HTML con el tablero (ver §6) | — |
 
@@ -107,10 +108,12 @@ Errores:
 
 - `422` si `title` está vacío (o solo espacios) o supera 200 caracteres.
 - `422` si `description` está vacía (o solo espacios) o supera 5000 caracteres.
+- `422` si `responsable` supera 100 caracteres.
 
 ### `GET /tickets`
 
-Lista tickets en JSON. Query params opcionales: `category`, `priority`, `status`.
+Lista tickets en JSON. Query params opcionales: `category`, `priority`, `status`, `responsable` (coincidencia exacta;
+un filtro vacío se ignora).
 
 ```text
 GET /tickets?category=bug&priority=P1&status=open
