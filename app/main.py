@@ -3,7 +3,7 @@ from typing import Literal
 from fastapi import FastAPI, HTTPException, status
 
 from app import db, ui
-from app.models import Ticket, TicketCreate, TicketUpdate
+from app.models import Ticket, TicketCreate, TicketStats, TicketUpdate
 from app.params import TicketId
 from app.service import (
     DuplicateTicket,
@@ -50,6 +50,12 @@ def list_tickets(
     return db.list_tickets(
         category=category, priority=priority, status=status, responsable=responsable, sort=sort
     )
+
+
+@app.get("/tickets/stats", response_model=TicketStats)
+def tickets_stats() -> dict:
+    """Recuento de tickets: total y desglose por categoría, prioridad y estado."""
+    return db.ticket_stats()
 
 
 @app.patch("/tickets/{ticket_id}", response_model=Ticket)
