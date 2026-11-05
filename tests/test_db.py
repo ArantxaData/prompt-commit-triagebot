@@ -22,7 +22,7 @@ def test_init_creates_table_and_is_idempotent():
     conn.close()
     assert cols == {
         "id", "title", "description", "category", "priority",
-        "tags", "status", "created_at", "updated_at", "due_date",
+        "tags", "responsable", "status", "created_at", "updated_at", "due_date",
     }  # fmt: skip
 
 
@@ -107,3 +107,39 @@ def test_update_rejects_invalid_status():
     created = db.insert_ticket("a", "b", BUG_P1)
     with pytest.raises(sqlite3.IntegrityError):
         db.update_ticket(created["id"], status="done")
+
+
+def test_responsable_is_stored_optional_and_filterable():
+    ana = db.insert_ticket("1", "x", BUG_P1, responsable="Ana")
+    luis = db.insert_ticket("2", "x", BUG_P1, responsable="Luis")
+    nadie = db.insert_ticket("3", "x", BUG_P1)
+
+    assert ana["responsable"] == "Ana"
+    assert nadie["responsable"] is None
+    assert [t["id"] for t in db.list_tickets(responsable="Ana")] == [ana["id"]]
+    assert [t["id"] for t in db.list_tickets(responsable="Luis", category="bug")] == [luis["id"]]
+    assert db.list_tickets(responsable="Pedro") == []
+    assert len(db.list_tickets(responsable="")) == 3  # filtro vacío se ignora
+
+
+def test_old_database_without_responsable_is_migrated(tmp_path, monkeypatch):
+    old = tmp_path / "old.db"
+    conn = sqlite3.connect(old)
+    conn.execute(
+        "CREATE TABLE tickets (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL,"
+        " description TEXT NOT NULL, category TEXT NOT NULL, priority TEXT NOT NULL,"
+        " tags TEXT NOT NULL DEFAULT '[]', status TEXT NOT NULL DEFAULT 'open',"
+        " created_at TEXT NOT NULL, updated_at TEXT NOT NULL)"
+    )
+    conn.execute(
+        "INSERT INTO tickets (title, description, category, priority, created_at, updated_at)"
+        " VALUES ('viejo', 'x', 'bug', 'P1', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')"
+    )
+    conn.commit()
+    conn.close()
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{old}")
+
+    tickets = db.list_tickets()
+    assert tickets[0]["title"] == "viejo"
+    assert tickets[0]["responsable"] is None
+    assert db.insert_ticket("nuevo", "x", BUG_P1, responsable="Ana")["responsable"] == "Ana"

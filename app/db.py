@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS tickets (
     tags        TEXT NOT NULL DEFAULT '[]',
     status      TEXT NOT NULL DEFAULT 'open'
         CHECK (status IN ('open','in_progress','resolved','closed')),
+    responsable TEXT,
     created_at  TEXT NOT NULL,
     updated_at  TEXT NOT NULL,
     due_date    TEXT
@@ -34,8 +35,10 @@ CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets (status);
 SCHEMA = TICKETS_TABLE + INDEXES
 
 TICKET_COLUMNS = (
-    "id, title, description, category, priority, tags, status, created_at, updated_at, due_date"
+    "id, title, description, category, priority, tags, status, responsable, created_at, updated_at, due_date"
 )
+# Se crea aparte: en BDs anteriores la columna se añade por migración antes del índice.
+RESPONSABLE_INDEX = "CREATE INDEX IF NOT EXISTS idx_tickets_responsable ON tickets (responsable)"
 
 
 def _now() -> str:
@@ -64,12 +67,16 @@ def get_connection() -> sqlite3.Connection:
     conn = sqlite3.connect(_db_path())
     conn.row_factory = sqlite3.Row
     conn.executescript(SCHEMA)  # idempotente
-    # Migración: bases de datos creadas antes de añadir due_date.
+    # Migraciones: bases de datos creadas antes de añadir columnas nuevas.
     columns = {r["name"] for r in conn.execute("PRAGMA table_info(tickets)")}
     if "due_date" not in columns:
         conn.execute("ALTER TABLE tickets ADD COLUMN due_date TEXT")
-        conn.commit()
+    if "responsable" not in columns:
+        conn.execute("ALTER TABLE tickets ADD COLUMN responsable TEXT")
+    conn.commit()
     _migrate_status_check(conn)
+    conn.execute(RESPONSABLE_INDEX)
+
     return conn
 
 
@@ -115,6 +122,7 @@ def insert_ticket(
     description: str,
     classification: dict,
     created_at: str | None = None,
+    responsable: str | None = None,
 ) -> dict:
     """Guarda título, descripción y fecha tal cual; el resto viene del clasificador.
 
@@ -126,7 +134,7 @@ def insert_ticket(
         with conn:
             cur = conn.execute(
                 "INSERT INTO tickets (title, description, category, priority, tags,"
-                " status, created_at, updated_at, due_date)"
+                " responsable, status, created_at, updated_at, due_date)"
                 " VALUES (?, ?, ?, ?, ?, 'open', ?, ?, ?)",
                 (
                     title,
@@ -134,6 +142,7 @@ def insert_ticket(
                     classification["category"],
                     classification["priority"],
                     json.dumps(classification["tags"], ensure_ascii=False),
+                    responsable,
                     created_at or now,
                     now,
                     _due_date(classification["priority"]),
@@ -159,8 +168,14 @@ def list_tickets(
     category: str | None = None,
     priority: str | None = None,
     status: str | None = None,
+    responsable: str | None = None,
 ) -> list[dict]:
-    filters = {"category": category, "priority": priority, "status": status}
+    filters = {
+        "category": category,
+        "priority": priority,
+        "status": status,
+        "responsable": responsable,
+    }
     active = {k: v for k, v in filters.items() if v}
     where = " AND ".join(f"{k} = ?" for k in active)  # claves fijas, valores parametrizados
     query = "SELECT * FROM tickets"

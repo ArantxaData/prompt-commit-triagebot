@@ -26,7 +26,11 @@ def create_ticket(ticket: TicketCreate) -> dict:
         classification = {**classifier.FALLBACK_CLASSIFICATION, "tags": []}
 
     return db.insert_ticket(
-        ticket.title, ticket.description, classification, created_at=ticket.created_at
+        ticket.title,
+        ticket.description,
+        classification,
+        created_at=ticket.created_at,
+        responsable=ticket.responsable,
     )
 
 
@@ -35,9 +39,12 @@ def list_tickets(
     category: str | None = None,
     priority: str | None = None,
     status: str | None = None,
+    responsable: str | None = None,
 ) -> list[dict]:
     # Los filtros vacíos (p. ej. un <select> sin elegir) se ignoran en db.list_tickets.
-    return db.list_tickets(category=category, priority=priority, status=status)
+    return db.list_tickets(
+        category=category, priority=priority, status=status, responsable=responsable
+    )
 
 
 @app.patch("/tickets/{ticket_id}", response_model=Ticket)

@@ -25,7 +25,8 @@ Campos mínimos:
 | `priority` | str | `P1`, `P2`, `P3` o `no inferido` |
 | `tags` | list[str] | Lista, puede estar vacía |
 | `status` | str | `open`, `in_progress`, `resolved`, `closed` (ver transiciones en §2.2) |
-| `created_at` | datetime | UTC. Lo genera el servidor, salvo que el origen aporte una fecha (se guarda tal cual) |
+| `responsable` | str \| null | Opcional, hasta 100 caracteres tras trim; vacío o solo espacios = `null`. Se indica al crear el ticket y no cambia después |
+| `created_at` | datetime | UTC, generado en servidor |
 | `updated_at` | datetime | UTC, actualizado en cambios relevantes |
 | `due_date` | date \| null | `YYYY-MM-DD`, UTC. Se calcula a partir de la prioridad (ver §2.1) |
 
@@ -149,10 +150,12 @@ Errores:
 - `422` si `description` está vacía (o solo espacios) o supera 5000 caracteres.
 - `422` si falta `title` o `description`, si algún campo no es texto o si se envía cualquier campo
   no admitido (por ejemplo `category`).
+- `422` si `responsable` supera 100 caracteres.
 
 ### `GET /tickets`
 
-Lista tickets en JSON. Query params opcionales: `category`, `priority`, `status`.
+Lista tickets en JSON. Query params opcionales: `category`, `priority`, `status`, `responsable` (coincidencia exacta;
+un filtro vacío se ignora).
 
 ```text
 GET /tickets?category=bug&priority=P1&status=open

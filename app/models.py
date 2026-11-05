@@ -31,6 +31,12 @@ class TicketCreate(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     description: str = Field(min_length=1, max_length=5000)
     created_at: str | None = None
+    responsable: str | None = Field(default=None, max_length=100)
+
+    @field_validator("responsable", mode="after")
+    @classmethod
+    def _blank_responsable_is_none(cls, v: str | None) -> str | None:
+        return v or None  # "" o solo espacios (ya recortados) = sin responsable
 
     @field_validator("title", "description", mode="before")
     @classmethod
@@ -53,6 +59,7 @@ class Ticket(BaseModel):
     category: Category | Literal["no inferido"]
     priority: Priority | Literal["no inferido"]
     tags: list[str]
+    responsable: str | None = None
     status: Status
     created_at: str
     updated_at: str
