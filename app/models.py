@@ -4,11 +4,20 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 ALLOWED_CATEGORIES = {"bug", "feature_request", "question", "urgent"}
 ALLOWED_PRIORITIES = {"P1", "P2", "P3"}
-ALLOWED_STATUSES = {"open", "in_progress", "closed"}
+ALLOWED_STATUSES = {"open", "in_progress", "resolved", "closed"}
+
+# Transiciones de estado permitidas en PATCH. Reabrir (resolved/closed -> in_progress)
+# no toca la fecha límite. Mantener el mismo estado es siempre válido (no-op).
+ALLOWED_TRANSITIONS = {
+    "open": {"in_progress", "resolved"},
+    "in_progress": {"resolved"},
+    "resolved": {"closed", "in_progress"},
+    "closed": {"in_progress"},
+}
 
 Category = Literal["bug", "feature_request", "question", "urgent"]
 Priority = Literal["P1", "P2", "P3"]
-Status = Literal["open", "in_progress", "closed"]
+Status = Literal["open", "in_progress", "resolved", "closed"]
 
 # Valor que el clasificador asigna cuando no puede inferir categoría o prioridad.
 NOT_INFERRED = "no inferido"

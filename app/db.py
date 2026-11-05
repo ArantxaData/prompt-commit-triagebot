@@ -7,7 +7,7 @@ from datetime import UTC, datetime, timedelta
 
 DEFAULT_DATABASE_URL = "sqlite:///triagebot.db"
 
-SCHEMA = """
+TICKETS_TABLE = """
 CREATE TABLE IF NOT EXISTS tickets (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     title       TEXT NOT NULL,
@@ -17,15 +17,25 @@ CREATE TABLE IF NOT EXISTS tickets (
     ),
     priority    TEXT NOT NULL CHECK (priority IN ('P1','P2','P3','no inferido')),
     tags        TEXT NOT NULL DEFAULT '[]',
-    status      TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','in_progress','closed')),
+    status      TEXT NOT NULL DEFAULT 'open'
+        CHECK (status IN ('open','in_progress','resolved','closed')),
     created_at  TEXT NOT NULL,
     updated_at  TEXT NOT NULL,
     due_date    TEXT
 );
+"""
+
+INDEXES = """
 CREATE INDEX IF NOT EXISTS idx_tickets_category ON tickets (category);
 CREATE INDEX IF NOT EXISTS idx_tickets_priority ON tickets (priority);
 CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets (status);
 """
+
+SCHEMA = TICKETS_TABLE + INDEXES
+
+TICKET_COLUMNS = (
+    "id, title, description, category, priority, tags, status, created_at, updated_at, due_date"
+)
 
 
 def _now() -> str:
@@ -59,7 +69,35 @@ def get_connection() -> sqlite3.Connection:
     if "due_date" not in columns:
         conn.execute("ALTER TABLE tickets ADD COLUMN due_date TEXT")
         conn.commit()
+    _migrate_status_check(conn)
     return conn
+
+
+def _migrate_status_check(conn: sqlite3.Connection) -> None:
+    """Bases de datos antiguas: su CHECK de status no admite 'resolved'.
+
+    SQLite no permite modificar un CHECK, así que se reconstruye la tabla copiando los datos
+    (todo en una transacción: si algo falla no queda nada a medias).
+    """
+    sql = conn.execute(
+        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'tickets'"
+    ).fetchone()["sql"]
+    if "'resolved'" in sql:
+        return
+    conn.executescript(
+        f"""
+        BEGIN;
+        DROP INDEX IF EXISTS idx_tickets_category;
+        DROP INDEX IF EXISTS idx_tickets_priority;
+        DROP INDEX IF EXISTS idx_tickets_status;
+        ALTER TABLE tickets RENAME TO tickets_old;
+        {TICKETS_TABLE}
+        INSERT INTO tickets ({TICKET_COLUMNS}) SELECT {TICKET_COLUMNS} FROM tickets_old;
+        DROP TABLE tickets_old;
+        {INDEXES}
+        COMMIT;
+        """
+    )
 
 
 def init_db() -> None:

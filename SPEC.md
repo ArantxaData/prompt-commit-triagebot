@@ -21,12 +21,13 @@ Campos mínimos:
 | `id` | int | Autogenerado |
 | `title` | str | Obligatorio, 1–200 caracteres tras trim |
 | `description` | str | Obligatorio, 1–5000 caracteres tras trim |
-| `category` | str | `bug`, `feature_request`, `question`, `urgent` |
-| `priority` | str | `P1`, `P2`, `P3` |
+| `category` | str | `bug`, `feature_request`, `question`, `urgent` o `no inferido` |
+| `priority` | str | `P1`, `P2`, `P3` o `no inferido` |
 | `tags` | list[str] | Lista, puede estar vacía |
-| `status` | str | `open`, `in_progress`, `closed` |
-| `created_at` | datetime | UTC, generado en servidor |
+| `status` | str | `open`, `in_progress`, `resolved`, `closed` (ver transiciones en §2.2) |
+| `created_at` | datetime | UTC. Lo genera el servidor, salvo que el origen aporte una fecha (se guarda tal cual) |
 | `updated_at` | datetime | UTC, actualizado en cambios relevantes |
+| `due_date` | date \| null | `YYYY-MM-DD`, UTC. Se calcula a partir de la prioridad (ver §2.1) |
 
 Valores por defecto:
 
@@ -35,6 +36,40 @@ Valores por defecto:
 
 Los valores de `category`, `priority` y `status` son vinculantes: exactamente esos, en minúsculas
 (salvo `P1`–`P3`). Si el código devuelve `"URGENT"`, los tests fallan.
+
+`no inferido` es el valor que usa el clasificador cuando no puede deducir con claridad la categoría
+o la prioridad. Es válido y se guarda tal cual; no activa el fallback.
+
+### 2.1 Fecha límite (`due_date`)
+
+Se calcula en el servidor al crear el ticket, desde la fecha de hoy (UTC), según la prioridad:
+
+| `priority` | `due_date` |
+|---|---|
+| `P1` | hoy |
+| `P2` | mañana |
+| `P3` | dentro de dos días |
+| `no inferido` | `null` |
+
+- La referencia es el día en que se guarda el ticket, no su `created_at`.
+- Si `priority` cambia con `PATCH`, `due_date` se recalcula desde hoy.
+- Cambiar solo `status` (incluido reabrir un ticket) **no** modifica `due_date`.
+- `due_date` no se puede enviar ni modificar directamente.
+
+### 2.2 Estados y transiciones
+
+| Desde | Puede pasar a |
+|---|---|
+| `open` | `in_progress`, `resolved` |
+| `in_progress` | `resolved` |
+| `resolved` | `closed`, `in_progress` (reabrir) |
+| `closed` | `in_progress` (reabrir) |
+
+- Un ticket debe pasar por `resolved` antes de `closed`.
+- Reabrir (`resolved` o `closed` → `in_progress`) conserva la misma `due_date`.
+- Pedir el estado que ya tiene el ticket es válido y no cambia nada.
+- Cualquier otra transición (por ejemplo `open → closed` o `resolved → open`) devuelve `409` y el
+  ticket no cambia.
 
 ## 3. Arquitectura de módulos
 
@@ -70,7 +105,7 @@ El stack cerrado no está aquí: está en `BRIEF.md`, sección «Restricciones t
 | `GET /health` | `200 {"status": "ok"}` | — |
 | `POST /tickets` | `201` con el ticket ya clasificado | `422` si título o descripción vacíos o demasiado largos |
 | `GET /tickets` | `200` lista, filtrable por `category`, `priority` y `status` | — |
-| `PATCH /tickets/{ticket_id}` | `200` ticket actualizado | `404` si no existe · `422` si el valor no está en el enum |
+| `PATCH /tickets/{ticket_id}` | `200` ticket actualizado | `404` si no existe · `422` si el valor no está en el enum · `409` si la transición de estado no está permitida |
 | `GET /` | `200` HTML con el tablero (ver §6) | — |
 
 ### `POST /tickets`
@@ -99,14 +134,21 @@ Response `201`:
   "tags": ["login", "blank-screen"],
   "status": "open",
   "created_at": "2026-06-29T09:30:00Z",
-  "updated_at": "2026-06-29T09:30:00Z"
+  "updated_at": "2026-06-29T09:30:00Z",
+  "due_date": "2026-06-29"
 }
 ```
+
+Campos admitidos en el request: `title` y `description` (obligatorios) y `created_at` (opcional;
+si viene, se guarda tal cual). Los espacios al principio y al final se recortan antes de validar y
+de guardar.
 
 Errores:
 
 - `422` si `title` está vacío (o solo espacios) o supera 200 caracteres.
 - `422` si `description` está vacía (o solo espacios) o supera 5000 caracteres.
+- `422` si falta `title` o `description`, si algún campo no es texto o si se envía cualquier campo
+  no admitido (por ejemplo `category`).
 
 ### `GET /tickets`
 
@@ -116,7 +158,9 @@ Lista tickets en JSON. Query params opcionales: `category`, `priority`, `status`
 GET /tickets?category=bug&priority=P1&status=open
 ```
 
-Devuelve `200` con una lista de tickets con la misma forma que la respuesta de `POST /tickets`.
+Devuelve `200` con una lista de tickets con la misma forma que la respuesta de `POST /tickets`,
+ordenada del más reciente al más antiguo (`id` descendente). Un filtro vacío (`?category=`) se
+ignora y un valor sin coincidencias devuelve una lista vacía (no `422`).
 
 ### `PATCH /tickets/{ticket_id}`
 
@@ -129,13 +173,17 @@ Solo se pueden cambiar `status` y `priority`. El resto de campos son inmutables 
 }
 ```
 
-- `status`: `open`, `in_progress`, `closed`
-- `priority`: `P1`, `P2`, `P3`
+- `status`: `open`, `in_progress`, `resolved`, `closed` (solo transiciones de §2.2)
+- `priority`: `P1`, `P2`, `P3` (recalcula `due_date`, ver §2.1)
+
+Los dos campos son opcionales: se puede cambiar solo uno. Un cuerpo vacío o valores `null` no
+cambian nada y devuelven `200`. Los campos no modificables que se envíen se ignoran.
 
 Errores:
 
 - `404` si no existe el ticket.
 - `422` si el valor no pertenece al enum permitido.
+- `409` si el cambio de `status` no es una transición permitida (§2.2).
 
 `GET /` devuelve HTML; `GET /tickets` devuelve JSON. No los confundáis: los tests y el agente del
 Día 3 usan el JSON.
@@ -153,8 +201,8 @@ Contrato de salida:
 
 ```python
 {
-    "category": "bug" | "feature_request" | "question" | "urgent",
-    "priority": "P1" | "P2" | "P3",
+    "category": "bug" | "feature_request" | "question" | "urgent" | "no inferido",
+    "priority": "P1" | "P2" | "P3" | "no inferido",
     "tags": list[str],
 }
 ```
@@ -165,7 +213,8 @@ modelo `openai/gpt-oss-120b`, API key desde la variable de entorno `OPENROUTER_A
 Requisitos no negociables:
 
 - **Valida la salida.** Si el LLM devuelve `"category": "URGENT"` (mayúsculas) o una categoría
-  inventada, aplica el fallback. No propagues basura.
+  inventada, aplica el fallback. No propagues basura. `no inferido` sí es un valor válido (el LLM
+  lo usa cuando no puede deducir con claridad la categoría o la prioridad).
 - **Como mucho un reintento** si la llamada falla. Si vuelve a fallar, fallback.
 - **Nunca propaga excepciones del SDK.** Ante cualquier problema devuelve el fallback:
 

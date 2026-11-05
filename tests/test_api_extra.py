@@ -55,6 +55,8 @@ def test_get_tickets_filters_each_field_and_combinations(client, monkeypatch):
     question = create(client, title="question")
     fake_classifier(monkeypatch, category="bug", priority="P3")
     low_bug = create(client, title="low bug")
+    # Para cerrar hay que pasar antes por resolved.
+    client.patch(f"/tickets/{low_bug['id']}", json={"status": "resolved"})
     client.patch(f"/tickets/{low_bug['id']}", json={"status": "closed"})
 
     def ids(**params):
@@ -83,6 +85,7 @@ def test_patch_updates_partially_keeps_immutable_fields_and_rejects_bad_input(
     url = f"/tickets/{original['id']}"
 
     # Cambio parcial: solo status; priority queda como estaba.
+    assert client.patch(url, json={"status": "resolved"}).status_code == 200
     partial = client.patch(url, json={"status": "closed"})
     assert partial.status_code == 200
     assert partial.json()["status"] == "closed"
