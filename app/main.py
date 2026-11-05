@@ -4,7 +4,6 @@ from fastapi import FastAPI, HTTPException, status
 
 from app import db, ui
 from app.models import Ticket, TicketCreate, TicketStats, TicketUpdate
-
 from app.params import TicketId
 from app.service import (
     DuplicateTicket,
