@@ -9,7 +9,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
 
 from app import db
-from app.models import NOT_INFERRED, TicketCreate, TicketUpdate
+from app.models import ALLOWED_TRANSITIONS, NOT_INFERRED, TicketCreate, TicketUpdate
 from app.service import (
     InvalidTransition,
     TicketNotFound,
@@ -41,6 +41,7 @@ templates.env.globals.update(
     CATEGORIES=CATEGORIES,
     NOT_INFERRED=NOT_INFERRED,
     CATEGORY_LABELS=dict(CATEGORIES),
+    TRANSITIONS=ALLOWED_TRANSITIONS,  # el desplegable de estado solo ofrece lo permitido
 )
 
 
@@ -101,7 +102,16 @@ def index(
     )
     if is_fragment:
         return _html(request, "_tickets_table.html", context)
-    return _html(request, "index.html", {**context, "form": _form_context()})
+    # El filtro de responsable es un desplegable con los existentes; si la URL trae uno que ya
+    # no existe se conserva como opción para no perder el filtro activo.
+    responsables = db.list_responsables()
+    if filters["responsable"] and filters["responsable"] not in responsables:
+        responsables.append(filters["responsable"])
+    return _html(
+        request,
+        "index.html",
+        {**context, "form": _form_context(), "responsables": responsables},
+    )
 
 
 @router.post("/ui/tickets", response_class=HTMLResponse)
