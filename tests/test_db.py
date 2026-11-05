@@ -22,7 +22,7 @@ def test_init_creates_table_and_is_idempotent():
     conn.close()
     assert cols == {
         "id", "title", "description", "category", "priority",
-        "tags", "responsable", "status", "created_at", "updated_at", "due_date",
+        "tags", "responsable", "status", "created_at", "updated_at", "due_date", "fingerprint",
     }  # fmt: skip
 
 

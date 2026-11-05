@@ -4,7 +4,10 @@ from fastapi import FastAPI, HTTPException, status
 
 from app import db, ui
 from app.models import Ticket, TicketCreate, TicketStats, TicketUpdate
+
+from app.params import TicketId
 from app.service import (
+    DuplicateTicket,
     InvalidTransition,
     TicketNotFound,
     change_ticket,
@@ -24,7 +27,16 @@ def health() -> dict[str, str]:
 def create_ticket(ticket: TicketCreate) -> dict:
     # FastAPI ya ha validado el formato: aquí solo llegan tickets con
     # title y description correctos (los erróneos devuelven 422 antes).
-    return create_classified_ticket(ticket)
+    try:
+        return create_classified_ticket(ticket)
+    except DuplicateTicket as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "message": f"Ya existe un ticket exactamente igual (#{exc.existing['id']})",
+                "duplicate_of": exc.existing["id"],
+            },
+        ) from None
 
 
 @app.get("/tickets", response_model=list[Ticket])
@@ -48,7 +60,7 @@ def tickets_stats() -> dict:
 
 
 @app.patch("/tickets/{ticket_id}", response_model=Ticket)
-def update_ticket(ticket_id: int, changes: TicketUpdate) -> dict:
+def update_ticket(ticket_id: TicketId, changes: TicketUpdate) -> dict:
     # status y priority ya vienen validados contra el enum (si no, 422).
     try:
         return change_ticket(ticket_id, status=changes.status, priority=changes.priority)

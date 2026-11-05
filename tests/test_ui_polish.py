@@ -1,5 +1,6 @@
 """Pulido de la interfaz: transiciones ofrecidas, contador de vencidos y accesibilidad."""
 
+import itertools
 import re
 from datetime import UTC, datetime, timedelta
 
@@ -101,9 +102,16 @@ def test_table_is_accessible_and_has_mobile_labels(client):
     assert "Sin responsable" in html and "Sin fecha límite" in html  # texto para lectores
 
 
+_serial = itertools.count(1)
+
+
 def add_with(responsable):
+    # Título distinto en cada llamada: dos tickets con el mismo texto se rechazan.
     return db.insert_ticket(
-        "t", "d", {"category": "bug", "priority": "P1", "tags": []}, responsable=responsable
+        f"t{next(_serial)}",
+        "d",
+        {"category": "bug", "priority": "P1", "tags": []},
+        responsable=responsable,
     )
 
 
