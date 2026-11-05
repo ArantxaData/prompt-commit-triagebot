@@ -3,7 +3,7 @@ import logging
 from fastapi import FastAPI, HTTPException, status
 
 from app import classifier, db
-from app.models import Ticket, TicketCreate, TicketUpdate
+from app.models import ALLOWED_TRANSITIONS, Ticket, TicketCreate, TicketUpdate
 
 logger = logging.getLogger(__name__)
 
@@ -50,10 +50,22 @@ def list_tickets(
 @app.patch("/tickets/{ticket_id}", response_model=Ticket)
 def update_ticket(ticket_id: int, changes: TicketUpdate) -> dict:
     # status y priority ya vienen validados contra el enum (si no, 422).
-    ticket = db.update_ticket(ticket_id, status=changes.status, priority=changes.priority)
-    if ticket is None:
+    current = db.get_ticket(ticket_id)
+    if current is None:
         raise HTTPException(status_code=404, detail="Ticket no encontrado")
-    return ticket
+
+    new_status = changes.status
+    if (
+        new_status
+        and new_status != current["status"]
+        and new_status not in ALLOWED_TRANSITIONS[current["status"]]
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Transición no permitida: {current['status']} -> {new_status}",
+        )
+
+    return db.update_ticket(ticket_id, status=new_status, priority=changes.priority)
 
 
 # TODO: implementar durante el bootcamp.
