@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 ALLOWED_CATEGORIES = {"bug", "feature_request", "question", "urgent"}
 ALLOWED_PRIORITIES = {"P1", "P2", "P3"}
