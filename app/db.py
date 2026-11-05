@@ -3,7 +3,7 @@
 import json
 import os
 import sqlite3
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 DEFAULT_DATABASE_URL = "sqlite:///triagebot.db"
 
@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS tickets (
     tags        TEXT NOT NULL DEFAULT '[]',
     status      TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','in_progress','closed')),
     created_at  TEXT NOT NULL,
-    updated_at  TEXT NOT NULL
+    updated_at  TEXT NOT NULL,
+    due_date    TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_tickets_category ON tickets (category);
 CREATE INDEX IF NOT EXISTS idx_tickets_priority ON tickets (priority);
@@ -29,6 +30,18 @@ CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets (status);
 
 def _now() -> str:
     return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+# Días hasta la fecha límite según prioridad: P1 hoy, P2 mañana, P3 dentro de dos días.
+DUE_DAYS = {"P1": 0, "P2": 1, "P3": 2}
+
+
+def _due_date(priority: str) -> str | None:
+    """Fecha límite (YYYY-MM-DD, UTC) desde hoy; None si la prioridad no tiene plazo."""
+    days = DUE_DAYS.get(priority)
+    if days is None:
+        return None
+    return (datetime.now(UTC).date() + timedelta(days=days)).isoformat()
 
 
 def _db_path() -> str:
@@ -41,6 +54,11 @@ def get_connection() -> sqlite3.Connection:
     conn = sqlite3.connect(_db_path())
     conn.row_factory = sqlite3.Row
     conn.executescript(SCHEMA)  # idempotente
+    # Migración: bases de datos creadas antes de añadir due_date.
+    columns = {r["name"] for r in conn.execute("PRAGMA table_info(tickets)")}
+    if "due_date" not in columns:
+        conn.execute("ALTER TABLE tickets ADD COLUMN due_date TEXT")
+        conn.commit()
     return conn
 
 
@@ -60,14 +78,18 @@ def insert_ticket(
     classification: dict,
     created_at: str | None = None,
 ) -> dict:
-    """Guarda título, descripción y fecha tal cual; el resto viene del clasificador."""
+    """Guarda título, descripción y fecha tal cual; el resto viene del clasificador.
+
+    La fecha límite (due_date) se calcula desde hoy según la prioridad.
+    """
     now = _now()
     conn = get_connection()
     try:
         with conn:
             cur = conn.execute(
                 "INSERT INTO tickets (title, description, category, priority, tags,"
-                " status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'open', ?, ?)",
+                " status, created_at, updated_at, due_date)"
+                " VALUES (?, ?, ?, ?, ?, 'open', ?, ?, ?)",
                 (
                     title,
                     description,
@@ -76,6 +98,7 @@ def insert_ticket(
                     json.dumps(classification["tags"], ensure_ascii=False),
                     created_at or now,
                     now,
+                    _due_date(classification["priority"]),
                 ),
             )
         return get_ticket(cur.lastrowid, conn)
@@ -118,6 +141,8 @@ def update_ticket(
 ) -> dict | None:
     """Solo status y priority son modificables. Devuelve None si el ticket no existe."""
     changes = {k: v for k, v in {"status": status, "priority": priority}.items() if v}
+    if "priority" in changes:
+        changes["due_date"] = _due_date(changes["priority"])  # se recalcula desde hoy
     conn = get_connection()
     try:
         if changes:

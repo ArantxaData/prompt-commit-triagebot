@@ -7,7 +7,7 @@ from app.main import app
 
 TICKET_FIELDS = {
     "id", "title", "description", "category", "priority",
-    "tags", "status", "created_at", "updated_at",
+    "tags", "status", "created_at", "updated_at", "due_date",
 }  # fmt: skip
 
 

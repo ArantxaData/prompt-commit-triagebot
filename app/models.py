@@ -47,3 +47,4 @@ class Ticket(BaseModel):
     status: Status
     created_at: str
     updated_at: str
+    due_date: str | None = None
