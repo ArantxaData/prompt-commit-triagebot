@@ -5,6 +5,8 @@ import os
 import sqlite3
 from datetime import UTC, datetime, timedelta
 
+from app.normalize import fingerprint
+
 DEFAULT_DATABASE_URL = "sqlite:///triagebot.db"
 
 TICKETS_TABLE = """
@@ -22,7 +24,8 @@ CREATE TABLE IF NOT EXISTS tickets (
     responsable TEXT,
     created_at  TEXT NOT NULL,
     updated_at  TEXT NOT NULL,
-    due_date    TEXT
+    due_date    TEXT,
+    fingerprint TEXT
 );
 """
 
@@ -36,10 +39,24 @@ SCHEMA = TICKETS_TABLE + INDEXES
 
 TICKET_COLUMNS = (
     "id, title, description, category, priority, tags, status, "
-    "responsable, created_at, updated_at, due_date"
+    "responsable, created_at, updated_at, due_date, fingerprint"
 )
 # Se crea aparte: en BDs anteriores la columna se añade por migración antes del índice.
 RESPONSABLE_INDEX = "CREATE INDEX IF NOT EXISTS idx_tickets_responsable ON tickets (responsable)"
+# Igual que arriba para la huella. El índice parcial hace instantánea la comprobación de
+# "¿queda algún ticket sin huella?" que se repite en cada conexión.
+FINGERPRINT_INDEXES = """
+CREATE INDEX IF NOT EXISTS idx_tickets_fingerprint ON tickets (fingerprint);
+CREATE INDEX IF NOT EXISTS idx_tickets_unfingerprinted ON tickets (id) WHERE fingerprint IS NULL;
+"""
+
+
+class DuplicateTicket(Exception):
+    """Ya existe un ticket con el mismo título y descripción (una vez normalizados)."""
+
+    def __init__(self, existing: dict):
+        super().__init__(f"Ya existe el ticket #{existing['id']}")
+        self.existing = existing
 
 
 def _now() -> str:
@@ -70,15 +87,35 @@ def get_connection() -> sqlite3.Connection:
     conn.executescript(SCHEMA)  # idempotente
     # Migraciones: bases de datos creadas antes de añadir columnas nuevas.
     columns = {r["name"] for r in conn.execute("PRAGMA table_info(tickets)")}
-    if "due_date" not in columns:
-        conn.execute("ALTER TABLE tickets ADD COLUMN due_date TEXT")
-    if "responsable" not in columns:
-        conn.execute("ALTER TABLE tickets ADD COLUMN responsable TEXT")
+    for name in ("due_date", "responsable", "fingerprint"):
+        if name not in columns:
+            _add_column(conn, name)
     conn.commit()
     _migrate_status_check(conn)
     conn.execute(RESPONSABLE_INDEX)
+    conn.executescript(FINGERPRINT_INDEXES)
+    _backfill_fingerprints(conn)
 
     return conn
+
+
+def _add_column(conn: sqlite3.Connection, name: str) -> None:
+    try:
+        conn.execute(f"ALTER TABLE tickets ADD COLUMN {name} TEXT")  # name viene de una lista fija
+    except sqlite3.OperationalError as exc:  # otra conexión la añadió a la vez
+        if "duplicate column" not in str(exc).lower():
+            raise
+
+
+def _backfill_fingerprints(conn: sqlite3.Connection) -> None:
+    """Calcula la huella de los tickets creados antes de existir (BD antiguas)."""
+    rows = conn.execute("SELECT id, title, description FROM tickets WHERE fingerprint IS NULL")
+    pending = [(fingerprint(r["title"], r["description"]), r["id"]) for r in rows.fetchall()]
+    if pending:
+        with conn:
+            conn.executemany(
+                "UPDATE tickets SET fingerprint = ? WHERE id = ? AND fingerprint IS NULL", pending
+            )
 
 
 def _migrate_status_check(conn: sqlite3.Connection) -> None:
@@ -127,16 +164,24 @@ def insert_ticket(
 ) -> dict:
     """Guarda título, descripción y fecha tal cual; el resto viene del clasificador.
 
-    La fecha límite (due_date) se calcula desde hoy según la prioridad.
+    La fecha límite (due_date) se calcula desde hoy según la prioridad. Lanza DuplicateTicket
+    si ya existe un ticket con el mismo título y descripción normalizados.
     """
     now = _now()
+    fp = fingerprint(title, description)
     conn = get_connection()
     try:
         with conn:
+            # BEGIN IMMEDIATE bloquea la escritura antes de comprobar: dos envíos idénticos
+            # simultáneos no pueden colarse ambos entre la comprobación y el INSERT.
+            conn.execute("BEGIN IMMEDIATE")
+            existing = _find_by_fingerprint(conn, fp)
+            if existing:
+                raise DuplicateTicket(existing)
             cur = conn.execute(
                 "INSERT INTO tickets (title, description, category, priority, tags,"
-                " responsable, status, created_at, updated_at, due_date)"
-                " VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?, ?)",
+                " responsable, status, created_at, updated_at, due_date, fingerprint)"
+                " VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?, ?, ?)",
                 (
                     title,
                     description,
@@ -147,9 +192,26 @@ def insert_ticket(
                     created_at or now,
                     now,
                     _due_date(classification["priority"]),
+                    fp,
                 ),
             )
         return get_ticket(cur.lastrowid, conn)
+    finally:
+        conn.close()
+
+
+def _find_by_fingerprint(conn: sqlite3.Connection, fp: str) -> dict | None:
+    row = conn.execute(
+        "SELECT * FROM tickets WHERE fingerprint = ? ORDER BY id LIMIT 1", (fp,)
+    ).fetchone()
+    return _row_to_ticket(row) if row else None
+
+
+def find_duplicate(title: str, description: str) -> dict | None:
+    """El ticket más antiguo con el mismo título y descripción normalizados, si existe."""
+    conn = get_connection()
+    try:
+        return _find_by_fingerprint(conn, fingerprint(title, description))
     finally:
         conn.close()
 

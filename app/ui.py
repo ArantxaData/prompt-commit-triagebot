@@ -10,11 +10,13 @@ from pydantic import ValidationError
 
 from app import db
 from app.models import ALLOWED_TRANSITIONS, NOT_INFERRED, TicketCreate, TicketUpdate
+from app.params import TicketId
 from app.service import (
+    DuplicateTicket,
     InvalidTransition,
     TicketNotFound,
     change_ticket,
-    create_classified_ticket,
+    create_ticket_reporting_fallback,
 )
 
 router = APIRouter()
@@ -74,8 +76,14 @@ def _html(request: Request, name: str, context: dict, status_code: int = 200) ->
     return response
 
 
-def _form_context(values: dict | None = None, errors: dict | None = None) -> dict:
-    return {"values": values or {}, "errors": errors or {}}
+def _form_context(
+    values: dict | None = None,
+    errors: dict | None = None,
+    alert: str | None = None,
+    notice: str | None = None,
+) -> dict:
+    """alert: error que impide guardar (rojo). notice: ticket guardado, pero con una pega."""
+    return {"values": values or {}, "errors": errors or {}, "alert": alert, "notice": notice}
 
 
 def _error_message(error: dict) -> str:
@@ -130,8 +138,25 @@ def create_ticket_form(
             request, "_new_ticket_form.html", {"form": _form_context(values, errors)}, 422
         )
 
-    create_classified_ticket(data)
-    response = _html(request, "_new_ticket_form.html", {"form": _form_context()})
+    try:
+        _, provisional = create_ticket_reporting_fallback(data)
+    except DuplicateTicket as exc:
+        found = exc.existing
+        alert = (
+            "El ticket NO se ha guardado: ya existe un ticket exactamente igual "
+            f"(#{found['id']} «{found['title']}», estado: {dict(STATUSES)[found['status']]})."
+        )
+        return _html(
+            request, "_new_ticket_form.html", {"form": _form_context(values, alert=alert)}, 409
+        )
+
+    notice = None
+    if provisional:
+        notice = (
+            "El ticket se ha guardado, pero la IA no ha podido clasificarlo: queda con una "
+            "clasificación provisional (consulta, P3). Revísalo a mano."
+        )
+    response = _html(request, "_new_ticket_form.html", {"form": _form_context(notice=notice)})
     response.headers["HX-Trigger"] = "ticket-created"  # la tabla se vuelve a pedir sola
     return response
 
@@ -139,7 +164,7 @@ def create_ticket_form(
 @router.patch("/ui/tickets/{ticket_id}", response_class=HTMLResponse)
 def update_ticket_row(
     request: Request,
-    ticket_id: int,
+    ticket_id: TicketId,
     status: str | None = Form(None),
     priority: str | None = Form(None),
 ) -> HTMLResponse:

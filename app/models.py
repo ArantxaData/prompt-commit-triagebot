@@ -19,6 +19,10 @@ Category = Literal["bug", "feature_request", "question", "urgent"]
 Priority = Literal["P1", "P2", "P3"]
 Status = Literal["open", "in_progress", "resolved", "closed"]
 
+# Los IDs son enteros autogenerados de SQLite: de 1 al mayor entero de 64 bits con signo.
+# Fuera de ese rango SQLite lanzaría un error interno (500) en lugar de "no existe".
+MAX_TICKET_ID = 2**63 - 1
+
 # Valor que el clasificador asigna cuando no puede inferir categoría o prioridad.
 NOT_INFERRED = "no inferido"
 

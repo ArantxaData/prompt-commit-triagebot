@@ -1,7 +1,9 @@
 {# Formulario de alta. Se vuelve a pintar entero: vacío y cerrado tras crear, abierto con errores si falla. #}
 {% set values = form["values"] %}  {# form.values sería el método dict.values #}
 {% set errors = form["errors"] %}
-<details id="new-ticket" class="group mt-6" {{ "open" if errors }}>
+{% set alert = form["alert"] %}
+{% set notice = form["notice"] %}
+<details id="new-ticket" class="group mt-6" {{ "open" if errors or alert or notice }}>
   <summary class="inline-flex cursor-pointer list-none items-center gap-2 rounded-md bg-sky-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-800 max-md:w-full max-md:justify-center max-md:py-2.5 [&::-webkit-details-marker]:hidden">
     <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>
     Nuevo ticket
@@ -9,6 +11,18 @@
   <form class="mt-3 grid gap-4 rounded-lg bg-white p-4 shadow-sm ring-1 ring-slate-200 md:grid-cols-2"
         hx-post="/ui/tickets" hx-target="#new-ticket" hx-swap="outerHTML"
         hx-disabled-elt="find button" hx-indicator="#classifying">
+    {% if alert %}
+    <div class="md:col-span-2 flex items-start gap-2 rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800" role="alert">
+      <span aria-hidden="true">⛔</span>
+      <p>{{ alert }}</p>
+    </div>
+    {% endif %}
+    {% if notice %}
+    <div class="md:col-span-2 flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900" role="status">
+      <span aria-hidden="true">⚠</span>
+      <p>{{ notice }}</p>
+    </div>
+    {% endif %}
     <div class="md:col-span-2">
       <label for="f-title" class="block text-sm font-medium">Título</label>
       <input id="f-title" name="title" type="text" maxlength="200" required autocomplete="off"

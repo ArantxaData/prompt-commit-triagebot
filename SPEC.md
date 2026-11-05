@@ -151,6 +151,13 @@ Errores:
 - `422` si falta `title` o `description`, si algún campo no es texto o si se envía cualquier campo
   no admitido (por ejemplo `category`).
 - `422` si `responsable` supera 100 caracteres.
+- `409` si ya existe un ticket con el mismo título y descripción. La comparación ignora
+  mayúsculas, tildes, signos de puntuación y espacios repetidos («¿No carga, la app?» y
+  «no carga la app» son el mismo texto); se compara contra todos los tickets, también los
+  cerrados, y no influyen el responsable ni la fecha. La respuesta indica cuál es
+  (`{"detail": {"message": "...", "duplicate_of": 31}}`) y no se llama a la IA. Dos envíos
+  idénticos simultáneos guardan solo uno. Los tickets ya existentes se conservan aunque
+  estuvieran repetidos.
 
 ### `GET /tickets`
 
@@ -237,6 +244,14 @@ El SPEC no fija el prompt: lo decidís vosotros. Sí es obligatorio que la salid
 3. Filtros por categoría, prioridad y estado.
 
 Implementación (`app/ui.py`, `templates/`):
+
+- Avisos al guardar un ticket desde la pantalla:
+  - **Rojo, el ticket NO se guarda:** ya existe uno exactamente igual (`409`, indica cuál);
+    el servidor está caído, no responde o devuelve un error (aviso global arriba, el texto
+    escrito se conserva); o falla la edición de una fila (el desplegable vuelve al valor
+    guardado). Sin respuesta en 60 s se da por fallida la petición.
+  - **Ámbar, el ticket SÍ se guarda:** la IA no pudo clasificarlo y queda con la
+    clasificación provisional (`question`/`P3`/`[]`).
 
 - `GET /` devuelve la página completa; con la cabecera `HX-Request` devuelve solo la tabla.
   Sin parámetros muestra los tickets **abiertos** ordenados por prioridad. Acepta los filtros

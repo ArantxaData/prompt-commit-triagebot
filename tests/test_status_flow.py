@@ -1,5 +1,6 @@
 """Estado `resolved`, transiciones permitidas, reapertura y migración de bases antiguas."""
 
+import itertools
 import sqlite3
 
 import pytest
@@ -39,8 +40,12 @@ def client(tmp_path, monkeypatch):
     return TestClient(app)
 
 
+_serial = itertools.count(1)
+
+
 def new_ticket(client):
-    response = client.post("/tickets", json={"title": "t", "description": "d"})
+    # Título distinto en cada llamada: dos tickets con el mismo texto se rechazan (409).
+    response = client.post("/tickets", json={"title": f"t{next(_serial)}", "description": "d"})
     assert response.status_code == 201
     return response.json()
 

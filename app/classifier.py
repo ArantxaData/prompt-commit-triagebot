@@ -15,6 +15,15 @@ logger = logging.getLogger(__name__)
 
 FALLBACK_CLASSIFICATION = {"category": "question", "priority": "P3", "tags": []}
 
+
+class FallbackClassification(dict):
+    """Clasificación provisional por fallo de la IA. Es un dict normal, pero se distingue de
+    una clasificación real (que podría coincidir en valores) con isinstance()."""
+
+
+def fallback() -> FallbackClassification:
+    return FallbackClassification(category="question", priority="P3", tags=[])
+
 MODEL = "openai/gpt-oss-120b"
 BASE_URL = "https://openrouter.ai/api/v1"
 MAX_TAGS = 5
@@ -81,4 +90,4 @@ def classify_ticket(title: str, description: str) -> dict:
             logger.warning("Salida del LLM inválida (intento %d)", attempt)
         except Exception as exc:  # noqa: BLE001 - nunca propagar errores del SDK
             logger.warning("Fallo al clasificar (intento %d): %s", attempt, type(exc).__name__)
-    return {**FALLBACK_CLASSIFICATION, "tags": []}
+    return fallback()

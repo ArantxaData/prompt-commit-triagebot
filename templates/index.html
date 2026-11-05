@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/htmx.org@2.0.4"></script>
   {# htmx descarta por defecto las respuestas 4xx; los 422 del formulario sí se pintan. #}
-  <meta name="htmx-config" content='{"responseHandling":[{"code":"204","swap":false},{"code":"[23]..","swap":true},{"code":"409","swap":true},{"code":"422","swap":true},{"code":"[45]..","swap":false,"error":true},{"code":"...","swap":true}]}'>
+  <meta name="htmx-config" content='{"timeout":60000,"responseHandling":[{"code":"204","swap":false},{"code":"[23]..","swap":true},{"code":"409","swap":true},{"code":"422","swap":true},{"code":"[45]..","swap":false,"error":true},{"code":"...","swap":true}]}'>
   <style>
     /* Superficies del navegador tematizadas con la paleta (sky/slate). */
     ::selection { background: #bae6fd; color: #0c4a6e; }
@@ -50,6 +50,15 @@
       <h1 class="text-3xl font-bold tracking-tight">TriageBot</h1>
       <p class="mt-1 text-slate-600">Tablero de incidencias con clasificación automática por IA.</p>
     </header>
+
+    {# Aviso global de fallos de conexión o del servidor (lo rellena el script del final). #}
+    <div id="app-alert" role="alert" aria-live="assertive"
+         class="mt-4 hidden items-start gap-3 rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800">
+      <span aria-hidden="true">⛔</span>
+      <p id="app-alert-text" class="flex-1 font-medium"></p>
+      <button type="button" id="app-alert-close" aria-label="Cerrar aviso"
+              class="rounded px-1 text-red-700 hover:bg-red-100">✕</button>
+    </div>
 
     {% include "_new_ticket_form.html" %}
 
@@ -105,5 +114,57 @@
       {% include "_tickets_table.html" %}
     </section>
   </main>
+
+  <script>
+    /* Avisa al usuario cuando una petición no llega al servidor o este falla. Sin esto, htmx
+       descarta el error en silencio y parece que todo ha ido bien. */
+    (function () {
+      var box = document.getElementById("app-alert");
+      var text = document.getElementById("app-alert-text");
+
+      function show(message) {
+        text.textContent = message;
+        box.classList.remove("hidden");
+        box.classList.add("flex");
+        box.scrollIntoView({ block: "nearest" });
+      }
+      function hide() {
+        box.classList.add("hidden");
+        box.classList.remove("flex");
+        text.textContent = "";
+      }
+      function verbOf(detail) {
+        return String((detail.requestConfig && detail.requestConfig.verb) || "get").toLowerCase();
+      }
+      function fail(detail, reason) {
+        var verb = verbOf(detail);
+        var what = verb === "post" ? "El ticket NO se ha guardado."
+                 : verb === "patch" ? "El cambio NO se ha guardado."
+                 : "No se han podido cargar los tickets.";
+        show(what + " " + reason + " Inténtalo de nuevo.");
+        if (verb === "patch" && detail.elt && detail.elt.querySelectorAll) {
+          // Los desplegables de la fila vuelven al valor que sí está guardado.
+          detail.elt.querySelectorAll("select option").forEach(function (o) {
+            o.selected = o.defaultSelected;
+          });
+        }
+      }
+
+      document.addEventListener("htmx:beforeRequest", hide);
+      document.addEventListener("htmx:sendError", function (e) {
+        fail(e.detail, "No hay conexión con el servidor (puede estar caído).");
+      });
+      document.addEventListener("htmx:timeout", function (e) {
+        fail(e.detail, "El servidor ha tardado demasiado en responder.");
+      });
+      document.addEventListener("htmx:responseError", function (e) {
+        var status = e.detail.xhr ? e.detail.xhr.status : "?";
+        fail(e.detail, status >= 500
+          ? "El servidor ha tenido un error interno (código " + status + ")."
+          : "El servidor ha rechazado la petición (código " + status + ").");
+      });
+      document.getElementById("app-alert-close").addEventListener("click", hide);
+    })();
+  </script>
 </body>
 </html>
