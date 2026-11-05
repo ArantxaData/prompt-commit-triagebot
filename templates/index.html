@@ -48,9 +48,16 @@
 </head>
 <body class="bg-slate-50 text-slate-900 antialiased" data-latin="{{ LATIN_CLASS }}">
   <main class="mx-auto max-w-7xl px-4 py-6 md:px-6">
-    <header>
-      <h1 class="text-3xl font-bold tracking-tight">TriageBot</h1>
-      <p class="mt-1 text-slate-600">Tablero de incidencias con clasificación automática por IA.</p>
+    <header class="flex items-start justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">TriageBot</h1>
+        <p class="mt-1 text-slate-600">Tablero de incidencias con clasificación automática por IA.</p>
+      </div>
+      <a href="/estadisticas" target="_blank" rel="noopener"
+         class="inline-flex shrink-0 items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-sky-800 shadow-sm ring-1 ring-slate-300 hover:bg-slate-50 max-md:py-2.5">
+        <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 13V8M8 13V3M13 13V6"/></svg>
+        Estadísticas<span class="sr-only"> (se abre en una pestaña nueva)</span>
+      </a>
     </header>
 
     {# Aviso global de fallos de conexión o del servidor (lo rellena el script del final). #}
