@@ -22,6 +22,7 @@ TriageBot permite:
 | Capa | Herramienta |
 |---|---|
 | Lenguaje | Python 3.11+ |
+ Lenguaje | Python 3.11+ |
 | Backend | FastAPI |
 | Datos | SQLite |
 | Frontend | HTML + HTMX + Tailwind CDN |
